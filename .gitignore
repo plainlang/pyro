@@ -1,0 +1,8 @@
+**/.claude
+**/skills-lock.json
+**/.tmp/
+**/.venv
+**/.coverage
+**/*plain_modules/
+**/conformance_tests/
+**/dist
