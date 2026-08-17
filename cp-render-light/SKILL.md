@@ -116,6 +116,14 @@ Read the list `plain_modules/<module>/test-reqs.md` and for every item:
 
 IMPORTANT: if any requirement list item is not passing, go back to the implementation (step 4.2), debug and fix it in the code.
 
+### Step 4.5: Module folder cleanup
+Report with a message "Step 4.5: Module folder cleanup".
+
+Remove any temporary files inside `plain_modules/<module>` folder:
+* `test-reqs.md` and `impl-reqs.md`.
+* any files that are result of testing or debugging during rendering.
+
+
 When all 4.x steps are done, continue with rendering the next module until no more modules are left.
 
 ## Step 5: Finalize and report
