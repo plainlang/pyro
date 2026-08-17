@@ -72,11 +72,12 @@ Write exhaustive conformance test scenarios for every :plainFunctionality: of th
 * Scenarios should exhaustively test every :plainFunctionality: and should include :AcceptanceTests:.
 * Get the <module>'s :AcceptanceTests: with `sh <skill_folder>/scripts/plain-sections.sh acc-tests <module spec>` and cover every one of them.
 
-Write the lists of requirements with the helper script, where <specs> is the <module>'s spec followed by the specs of its imported modules:
-* `sh <skill_folder>/scripts/plain-sections.sh impl-reqs <specs> > plain_modules/<module>/impl-reqs.md`
-* `sh <skill_folder>/scripts/plain-sections.sh test-reqs <specs> > plain_modules/<module>/test-reqs.md`
+Write the lists of requirements using the helper script, where <specs> are module's spec plus the specs of its imported modules:
+* impl. reqs: `sh <skill_folder>/scripts/plain-sections.sh impl-reqs <specs> > plain_modules/<module>/impl-reqs.md`
+* test reqs: `sh <skill_folder>/scripts/plain-sections.sh test-reqs <specs> > plain_modules/<module>/test-reqs.md`
+Both lists hold the requirements verbatim - never paraphrase, reorder or drop any of them.
 
-Both lists hold the requirements verbatim - never paraphrase, reorder or drop any of them (Step 4.4 later annotates these same lists with the verification results).
+Read `impl-reqs.md` and `test-reqs.md`.
 
   
 ### Step 4.2: Implement code and tests
@@ -103,11 +104,17 @@ If any tests are failing, go back to the implementation step (4.2), debug it and
 * Run and verify <module>'s :UnitTests: are passing.
 
 ### Step 4.4: Reqs verification
-Report with a message "#Step 4.4: Reqs verification of <module>".
+Report with a message "Step 4.4: Reqs verification of <module>".
 
-If there are any requirements not fulfiled, go back to the implementation step (4.2), debug it and fix implementation code.
-* Check every item in the list `plain_modules/<module>/impl-reqs.md` if the implementation respects it. Update the list with passed/failed signs.
-* Check every item in the list `plain_modules/<module>/test-reqs.md` if the conformance tests respects it. Update the list with passed/failed signs.
+Read the list `plain_modules/<module>/impl-reqs.md` and for every item:
+* Review if the implementation respects it.
+* Add checkbox with checked/unchecked status to the item.
+
+Read the list `plain_modules/<module>/test-reqs.md` and for every item:
+* Review if the conformance tests respect it.
+* Add checkbox with checked/unchecked status to the item.
+
+IMPORTANT: if any requirement list item is not passing, go back to the implementation (step 4.2), debug and fix it in the code.
 
 When all 4.x steps are done, continue with rendering the next module until no more modules are left.
 
