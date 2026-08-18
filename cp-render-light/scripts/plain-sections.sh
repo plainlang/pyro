@@ -9,9 +9,11 @@
 #   test-reqs                                :plainTestReqs:
 #   functional-specs     func-specs  specs   :plainFunctionality:
 #   acceptance-tests     acc-tests           :AcceptanceTests:
+#   all                  all-sections everything   - every section, in file order
 #
-# The ***section*** marker itself is never printed and `>` comment lines are dropped.
-# With --include-filename each body is preceded by a "## <path>" heading.
+# The ***section*** marker itself is never printed, except for `all`, which keeps every
+# section's own marker so the sections stay distinguishable. `>` comment lines are always
+# dropped. With --include-filename each body is preceded by a "## <path>" heading.
 #
 # Exit: 0 ok (a missing section only warns on stderr), 1 unreadable file,
 #       2 usage error / unknown section.
@@ -30,6 +32,7 @@ sections (case-insensitive, - and _ interchangeable):
   test-reqs                               :plainTestReqs:
   functional-specs     func-specs specs   :plainFunctionality:
   acceptance-tests     acc-tests          :AcceptanceTests:
+  all                  all-sections everything
 EOF
     exit 2
 }
@@ -70,6 +73,8 @@ case $norm in
         want="functional specs" ;;
     "acceptance tests" | "acc tests" | acceptancetests)
         want="acceptance tests" ;;
+    all | "all sections" | everything)
+        want="all" ;;
     *)
         printf '%s: error: unknown section: %s\n' "$prog" "$section_arg" >&2
         usage ;;
@@ -158,7 +163,13 @@ extract() {
 
         # Top-level section mode.
         if (m != "" && col0) {
-            if (m == want) { in_section = 1; pending = 0 }
+            if (want == "all") {
+                if (n > 0) buf[++n] = ""    # blank line before each new section
+                buf[++n] = line             # keep the ***marker*** verbatim
+                in_section = 1
+                pending = 0
+            }
+            else if (m == want) { in_section = 1; pending = 0 }
             else if (in_section) in_section = 0
             next
         }
@@ -195,7 +206,11 @@ for f in "$@"; do
     rc=$?
 
     if [ "$rc" -eq 3 ]; then
-        printf "%s: warning: no '%s' in %s\n" "$prog" "$want" "$f" >&2
+        if [ "$want" = all ]; then
+            printf '%s: warning: no sections in %s\n' "$prog" "$f" >&2
+        else
+            printf "%s: warning: no '%s' in %s\n" "$prog" "$want" "$f" >&2
+        fi
     elif [ "$rc" -ne 0 ]; then
         printf '%s: error: failed to parse %s\n' "$prog" "$f" >&2
         exit_status=1

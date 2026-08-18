@@ -71,10 +71,12 @@ Create module's implementation code folder `plain_modules/<module>`.
 If there's previous rendered module, copy its code to module's folder with:
   * `cp -r plain_modules/<previous_module>/* plain_modules/<module>`.
 
-### Step 4.1: Specs, test scenarios and requirements
-Report with a message "Step 4.1: Loading specs and writing test scenarios for: <module> + <required-or-imported-modules>".
+### Step 4.1: Specs, reqs, test scenarios
+Report with a message "Step 4.1: Loading specs, writing reqs and test scenarios for: <module> + <required-or-imported-modules>".
 
-Read all the specs for this <module> and its required and imported specs.
+Run the command with helper script, where <specs> are the module's spec followed by the specs of its imported or required modules:
+`sh <skill_folder>/scripts/plain-sections.sh all <specs>`
+The output of this command are all the necessary specs for succesfully rendering this module.
 
 Write exhaustive conformance test scenarios for every :plainFunctionality: of the <module>'s spec into `conf_tests/<module>/scenarios.md`.
 * Scenarios should exhaustively test every :plainFunctionality: and should include :AcceptanceTests:.
@@ -84,9 +86,6 @@ Write the lists of requirements using the helper script, where <specs> are modul
 * impl. reqs: `sh <skill_folder>/scripts/plain-sections.sh impl-reqs <specs> > plain_modules/<module>/impl-reqs.md`
 * test reqs: `sh <skill_folder>/scripts/plain-sections.sh test-reqs <specs> > plain_modules/<module>/test-reqs.md`
 Both lists hold the requirements verbatim - never paraphrase, reorder or drop any of them.
-
-Read `impl-reqs.md` and `test-reqs.md`.
-
   
 ### Step 4.2: Implement code and tests
 Report with a message "Step 4.2: Implementation of <module>".
