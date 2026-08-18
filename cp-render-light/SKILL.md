@@ -63,6 +63,14 @@ Report with a message showing the `dependencies.md`.
 
 Load the :RenderPlan: and for every module follow precisely the steps:
 
+### Step 4.0: Folder preparation
+Report with a message "Step 4.0: Folder preparation of <module>".
+
+Create module's conformance tests folder `conf_tests/<module>`.
+Create module's implementation code folder `plain_modules/<module>`.
+If there's previous rendered module, copy its code to module's folder with:
+  * `cp -r plain_modules/<previous_module>/* plain_modules/<module>`.
+
 ### Step 4.1: Specs, test scenarios and requirements
 Report with a message "Step 4.1: Loading specs and writing test scenarios for: <module> + <required-or-imported-modules>".
 
@@ -85,7 +93,7 @@ Report with a message "Step 4.2: Implementation of <module>".
 
 All the implementation code must be put in a self-contained `plain_modules/<module>` folder. NOTHING OUTSIDE OF THIS FOLDER can be touched during this step 4.2.
 
-When referencing other rendered modules, ALWAYS FIRST COPY OTHER MODULE'S CODE FROM `plain_modules/used_module/*` INTO `plain_modules/<module>` folder. After it is copied, you can make changes to it. When referencing these modules them, ALWAYS REFER TO THEM RELATIVE FROM `plain_modules/<module>` folder - never include `plain_modules` in the path.
+When referencing already rendered modules, ALWAYS REFER TO THEM RELATIVE FROM `plain_modules/<module>` folder - never include `plain_modules/<module>` in the import or require path.
 
 Implement all :plainFunctionality: of <module> specs while respecting all the requirements in `plain_modules/<module>/impl-reqs.md`.
 
