@@ -1,5 +1,5 @@
 ---
-name: cp-render-light
+name: pyro-render
 description: >-
   Renders .plain specs into working software by generating production code.
 argument-hint: <TargetModule>

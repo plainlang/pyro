@@ -1,10 +1,6 @@
 # Intro
 
-This repo includes:
-- cp-render skill to render plain specs with an agent like Claude Code (`/cp-render`)
-- cp-render-light skill with less instructions
-- cp-render-min skill with minimal instruction and plain reference loaded
-- cp-render-min-min skill with minimal instructions without plain reference
+This repo includes `pyro-render` skill to render plain specs with an agent like Claude Code (`/cp-render`).
 
 ## Install
 
@@ -23,4 +19,4 @@ npx skills list
 
 # Using the skills
 
-Once the skill is installed, start Claude from your project's working dir and prompt `/cp-render <plain-spec-filename>`.
+Once the skill is installed, start Claude from your project's working dir and prompt `/pyro-render <plain-spec-filename>`.
