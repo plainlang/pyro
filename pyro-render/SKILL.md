@@ -1,7 +1,11 @@
 ---
 name: pyro-render
 description: >-
-  Renders .plain specs into working software by generating production code.
+  Renders a .plain specification module into working, tested code. Use when
+  asked to render, build, or implement a .plain spec file or module: resolves
+  and renders its required/imported modules in dependency order, producing
+  implementation code in plain_modules/, conformance tests in conf_tests/,
+  and the target module's output in dist/.
 argument-hint: <TargetModule>
 ---
 
