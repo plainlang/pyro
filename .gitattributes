@@ -1,0 +1,11 @@
+# Keep every text file LF in the working tree regardless of the contributor's core.autocrlf
+# setting. The scripts emit LF unconditionally, and tests/run_tests.py compares their output
+# byte for byte against tests/expected/*.txt - so a CRLF checkout of those files would fail
+# the suite on Windows for no reason at all.
+* text=auto eol=lf
+*.py text eol=lf
+*.plain text eol=lf
+
+# The one deliberate exception: this fixture must keep its CRLF endings, because it exists to
+# prove the parser strips \r from spec input.
+tests/fixtures/sample-crlf.plain -text

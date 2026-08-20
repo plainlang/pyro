@@ -1,0 +1,14 @@
+- Create a :Widget: from a name.
+
+  ***acceptance tests***
+
+  - Creating a :Widget: named "a" yields a :Widget: with name "a".
+  - An empty name is rejected.
+
+- List all :Widget: in the :Registry:.
+
+  ***acceptance tests***
+
+  - An empty :Registry: lists nothing.
+
+- Delete a :Widget: by name.

@@ -1,0 +1,11 @@
+---
+description: Second fixture, for multi-spec invocations.
+---
+
+***definitions***
+
+- :Gadget: is another thing.
+
+***implementation reqs***
+
+- Keep it small.

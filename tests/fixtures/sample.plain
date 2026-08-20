@@ -1,0 +1,42 @@
+---
+import: base
+requires: m_lib
+description: Fixture spec exercising every section.
+---
+
+***definitions***
+
+> a dropped comment right after the marker
+
+- :Widget: is a thing with a name.
+  - the name is a non-empty string.
+
+- :Registry: holds many :Widget:.
+> another dropped comment
+
+***implementation reqs***
+
+- Implement in Python 3.
+- Use :UnitTests: with pytest.
+
+***test reqs***
+
+- Run :ConformanceTests: with pytest.
+
+***functional specs***
+
+- Create a :Widget: from a name.
+
+  ***acceptance tests***
+
+  > dropped comment inside the block
+  - Creating a :Widget: named "a" yields a :Widget: with name "a".
+  - An empty name is rejected.
+
+- List all :Widget: in the :Registry:.
+
+  ***acceptance tests***
+
+  - An empty :Registry: lists nothing.
+
+- Delete a :Widget: by name.

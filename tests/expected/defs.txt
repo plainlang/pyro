@@ -1,0 +1,4 @@
+- :Widget: is a thing with a name.
+  - the name is a non-empty string.
+
+- :Registry: holds many :Widget:.
