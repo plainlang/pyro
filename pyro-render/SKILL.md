@@ -15,8 +15,13 @@ When starting each step or substep, report with a message "Starting Step <Step_I
 
 # Step 1: Introduction, inputs and outputs
 
+`<skill_folder>` is the absolute path of the directory holding this `SKILL.md`. Resolve it once, now, and reuse it for every file inside this skill:
+* On Claude Code it is `${CLAUDE_SKILL_DIR}`; on other agents derive it from the location this skill was loaded from.
+* Always wrap it in double quotes in a command - the install path can contain spaces.
+* Never reach a file inside this skill by a relative path - relative paths resolve against the project folder, not this skill.
+
 Your mission is to implement software code as defined by .plain specifications (specs).
-To understand the specs language, load the complete `references/plain-lang.md`.
+To understand the specs language, load the complete `<skill_folder>/references/plain-lang.md`.
 
 Input arguments are:
 * <TargetModule> which is the filename of to the module spec to be rendered.
@@ -32,7 +37,7 @@ Generated artifacts are:
 
 Available tooling:
 * `scripts/plain-sections.sh` extracts one section out of any number of specs and prints it to stdout:
-  `sh <skill_folder>/scripts/plain-sections.sh [--include-filename] [--output <path>] <section> <spec.plain> [<spec.plain> ...]`
+  `sh "<skill_folder>/scripts/plain-sections.sh" [--include-filename] [--output <path>] <section> <spec.plain> [<spec.plain> ...]`
   * `<section>` is one of `defs`, `impl-reqs`, `test-reqs`, `func-specs`, `acc-tests`.
   * `--output <path>` writes the result to `<path>`. Always use it instead of redirecting with `>` - the shell's redirection is not portable between platforms.
   * Exit code 1 means a spec could not be read and 2 means the invocation was wrong - in both cases fix the call instead of falling back to reading the sections yourself. A section missing from a spec is only a warning on stderr.
@@ -46,7 +51,7 @@ Ensure there are no loops in the dependency graph of modules. If there are, aban
 
 Prepare the optimal order for rendering <TargetModule> and all the required modules based on the dependency graph.
 
-Prepare a :RenderPlan: : List all the modules to be rendered in the planned rendering order in the [example format](references/render-plan.md) and write it to :RenderPlan: file (overwrite if already exists).
+Prepare a :RenderPlan: : List all the modules to be rendered in the planned rendering order in the example format from `<skill_folder>/references/render-plan.md` and write it to :RenderPlan: file (overwrite if already exists).
 
 
 ## Step 3: Verifying the environment
@@ -56,8 +61,8 @@ If any dependency is missing - DO NOT INSTALL ANYTHING, but do:
 * report with message listing missing dependencies.
 
 Gather all :plainImplementationReqs: and :plainTestReqs: from all specs of the modules' to be rendered:
-* `sh <skill_folder>/scripts/plain-sections.sh --include-filename impl-reqs <all specs to be rendered>`
-* `sh <skill_folder>/scripts/plain-sections.sh --include-filename test-reqs <all specs to be rendered>`
+* `sh "<skill_folder>/scripts/plain-sections.sh" --include-filename impl-reqs <all specs to be rendered>`
+* `sh "<skill_folder>/scripts/plain-sections.sh" --include-filename test-reqs <all specs to be rendered>`
 
 Write a list of all the required dependencies for implementation and for tests into `dependencies.md` file. Verify all the all the dependendencies are present and update the list.
 
@@ -80,16 +85,16 @@ If there's previous rendered module, copy its code to module's folder with:
 Report with a message "Step 4.1: Loading specs, writing reqs and test scenarios for: <module> + <required-or-imported-modules>".
 
 Run the command with helper script, where <specs> are the module's spec followed by the specs of its imported or required modules:
-`sh <skill_folder>/scripts/plain-sections.sh all <specs>`
+`sh "<skill_folder>/scripts/plain-sections.sh" all <specs>`
 The output of this command are all the necessary specs for succesfully rendering this module.
 
 Write exhaustive conformance test scenarios for every :plainFunctionality: of the <module>'s spec into `conf_tests/<module>/scenarios.md`.
 * Scenarios should exhaustively test every :plainFunctionality: and should include :AcceptanceTests:.
-* Get the <module>'s :AcceptanceTests: with `sh <skill_folder>/scripts/plain-sections.sh acc-tests <module spec>` and cover every one of them.
+* Get the <module>'s :AcceptanceTests: with `sh "<skill_folder>/scripts/plain-sections.sh" acc-tests <module spec>` and cover every one of them.
 
 Write the lists of requirements using the helper script, where <specs> are module's spec plus the specs of its imported modules:
-* impl. reqs: `sh <skill_folder>/scripts/plain-sections.sh impl-reqs <specs> --output plain_modules/<module>/impl-reqs.md`
-* test reqs: `sh <skill_folder>/scripts/plain-sections.sh test-reqs <specs> --output plain_modules/<module>/test-reqs.md`
+* impl. reqs: `sh "<skill_folder>/scripts/plain-sections.sh" impl-reqs <specs> --output plain_modules/<module>/impl-reqs.md`
+* test reqs: `sh "<skill_folder>/scripts/plain-sections.sh" test-reqs <specs> --output plain_modules/<module>/test-reqs.md`
 Both lists hold the requirements verbatim - never paraphrase, reorder or drop any of them.
   
 ### Step 4.2: Implement code and tests
