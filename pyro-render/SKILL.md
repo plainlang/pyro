@@ -32,8 +32,9 @@ Generated artifacts are:
 
 Available tooling:
 * `scripts/plain-sections.sh` extracts one section out of any number of specs and prints it to stdout:
-  `sh <skill_folder>/scripts/plain-sections.sh [--include-filename] <section> <spec.plain> [<spec.plain> ...]`
+  `sh <skill_folder>/scripts/plain-sections.sh [--include-filename] [--output <path>] <section> <spec.plain> [<spec.plain> ...]`
   * `<section>` is one of `defs`, `impl-reqs`, `test-reqs`, `func-specs`, `acc-tests`.
+  * `--output <path>` writes the result to `<path>`. Always use it instead of redirecting with `>` - the shell's redirection is not portable between platforms.
   * Exit code 1 means a spec could not be read and 2 means the invocation was wrong - in both cases fix the call instead of falling back to reading the sections yourself. A section missing from a spec is only a warning on stderr.
   * Always gather sections with this script - never transcribe or summarize them by hand.
 
@@ -87,8 +88,8 @@ Write exhaustive conformance test scenarios for every :plainFunctionality: of th
 * Get the <module>'s :AcceptanceTests: with `sh <skill_folder>/scripts/plain-sections.sh acc-tests <module spec>` and cover every one of them.
 
 Write the lists of requirements using the helper script, where <specs> are module's spec plus the specs of its imported modules:
-* impl. reqs: `sh <skill_folder>/scripts/plain-sections.sh impl-reqs <specs> > plain_modules/<module>/impl-reqs.md`
-* test reqs: `sh <skill_folder>/scripts/plain-sections.sh test-reqs <specs> > plain_modules/<module>/test-reqs.md`
+* impl. reqs: `sh <skill_folder>/scripts/plain-sections.sh impl-reqs <specs> --output plain_modules/<module>/impl-reqs.md`
+* test reqs: `sh <skill_folder>/scripts/plain-sections.sh test-reqs <specs> --output plain_modules/<module>/test-reqs.md`
 Both lists hold the requirements verbatim - never paraphrase, reorder or drop any of them.
   
 ### Step 4.2: Implement code and tests
