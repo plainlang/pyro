@@ -1,7 +1,7 @@
 #!/bin/sh
 # Extract one section from .plain specs and print the bodies to stdout.
 #
-# Usage: plain-sections.sh [--include-filename] <section> <spec.plain> [spec.plain ...]
+# Usage: plain-sections.sh [--include-filename] [--output <path>] <section> <spec.plain> [spec.plain ...]
 #
 # Sections (case-insensitive, `-` and `_` interchangeable):
 #   definitions          defs        :plainDefinitions:
@@ -15,8 +15,13 @@
 # section's own marker so the sections stay distinguishable. `>` comment lines are always
 # dropped. With --include-filename each body is preceded by a "## <path>" heading.
 #
-# Exit: 0 ok (a missing section only warns on stderr), 1 unreadable file,
-#       2 usage error / unknown section.
+# --output <path> (or --output=<path>) writes the result to <path> instead of stdout, so
+# callers never need shell redirection. Windows PowerShell 5.1 writes UTF-16LE for `>` and
+# `>>`, which corrupts files that later steps read back, so redirecting here rather than in
+# the calling shell keeps the output UTF-8/LF on every platform. Warnings stay on stderr.
+#
+# Exit: 0 ok (a missing section only warns on stderr), 1 unreadable file or unwritable
+#       --output path, 2 usage error / unknown section.
 
 set -u
 
@@ -24,7 +29,7 @@ prog=$(basename "$0")
 
 usage() {
     cat >&2 <<EOF
-usage: $prog [--include-filename] <section> <spec.plain> [spec.plain ...]
+usage: $prog [--include-filename] [--output <path>] <section> <spec.plain> [spec.plain ...]
 
 sections (case-insensitive, - and _ interchangeable):
   definitions          defs       :plainDefinitions:
@@ -37,8 +42,12 @@ EOF
     exit 2
 }
 
-# Pull --include-filename out of the argument list, wherever it appears.
+# Pull the options out of the argument list, wherever they appear. Each iteration takes the
+# front argument and pushes the non-options back on the end, so while argc > 0 the front of
+# "$@" is always the next unprocessed argument - which is what lets --output claim it.
 show_path=0
+out=
+have_out=0
 argc=$#
 while [ "$argc" -gt 0 ]; do
     arg=$1
@@ -46,6 +55,24 @@ while [ "$argc" -gt 0 ]; do
     argc=$((argc - 1))
     case $arg in
         --include-filename) show_path=1 ;;
+        --output)
+            if [ "$argc" -eq 0 ]; then
+                printf '%s: error: --output requires a path\n' "$prog" >&2
+                usage
+            fi
+            out=$1
+            shift
+            argc=$((argc - 1))
+            have_out=1
+            ;;
+        --output=*)
+            out=${arg#--output=}
+            if [ -z "$out" ]; then
+                printf '%s: error: --output requires a path\n' "$prog" >&2
+                usage
+            fi
+            have_out=1
+            ;;
         -h | --help) usage ;;
         *) set -- "$@" "$arg" ;;
     esac
@@ -191,6 +218,17 @@ extract() {
     }
     ' "$2"
 }
+
+# Redirect once, here, so every printf below lands in the file. Truncate first so an
+# unwritable path is a clean error instead of whatever `exec` does on a failed redirection,
+# which is not portable across shells.
+if [ "$have_out" -eq 1 ]; then
+    if ! : > "$out"; then
+        printf '%s: error: cannot write %s\n' "$prog" "$out" >&2
+        exit 1
+    fi
+    exec > "$out"
+fi
 
 exit_status=0
 printed=0
