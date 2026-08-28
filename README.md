@@ -6,7 +6,7 @@ that renders a `.plain` spec into working and tested code.
 Invoke it from your agent with:
 
 ```
-/pyro-render <plain-spec-filename>
+/render-spec <plain-spec-filename>
 ```
 
 The skill resolves the modules the target spec requires or imports, renders them
@@ -26,12 +26,12 @@ npx skills add https://github.com/Codeplain-ai/pyro --agent claude-code
 
 ### Manual installation
 
-Copy the `pyro-render` folder from this repo into your agent's skills folder.
+Copy the `skills/render-spec` folder from this repo into your agent's skills folder.
 For Claude Code that is `.claude/skills/` in your project.
 
 ## Using the skill
 
-Once the skill is installed, start Claude from your project's working dir and prompt `/pyro-render <plain-spec-filename>`.
+Once the skill is installed, start Claude from your project's working dir and prompt `/render-spec <plain-spec-filename>`.
 
 ## Requirements
 

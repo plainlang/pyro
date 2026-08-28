@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Tests for pyro-render/scripts/plain_sections.py.
+# Tests for skills/render-spec/scripts/plain_sections.py.
 #
 # Usage: python3 tests/run_tests.py        (Windows: py -3 tests\run_tests.py)
 # Exit:  0 all assertions passed, 1 something failed.
@@ -20,7 +20,7 @@ import sys
 import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SCRIPT = os.path.join(ROOT, "pyro-render", "scripts", "plain_sections.py")
+SCRIPT = os.path.join(ROOT, "skills", "render-spec", "scripts", "plain_sections.py")
 FIXTURES = os.path.join(ROOT, "tests", "fixtures")
 EXPECTED = os.path.join(ROOT, "tests", "expected")
 

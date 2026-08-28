@@ -1,5 +1,5 @@
 ---
-name: pyro-render
+name: render-spec
 description: >-
   Renders a .plain specification module into working, tested code. Use when
   asked to render, build, or implement a .plain spec file or module: resolves
