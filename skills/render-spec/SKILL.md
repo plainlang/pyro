@@ -7,9 +7,13 @@ description: >-
   implementation code in plain_modules/, conformance tests in conf_tests/,
   and the target module's output in dist/.
 argument-hint: <TargetModule>
+metadata:
+  version: "0.0.6"
 ---
 
 # Skill instructions
+
+Check skill version and report with "Running pyro/render-spec: <skill-version>".
 
 When starting each step or substep, report with a message "Starting Step <Step_ID>: <Description>".
 
