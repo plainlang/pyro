@@ -1,0 +1,36 @@
+name: Lint
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches: [main, dev]
+
+jobs:
+  commitlint:
+    name: Commit message format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Lint commit messages
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [ -n "$BASE_SHA" ] && git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+            RANGE="--from $BASE_SHA --to $HEAD_SHA"
+          else
+            # New branch or unavailable base: check the tip commit only.
+            RANGE="--last"
+          fi
+          npx --yes \
+            --package @commitlint/cli \
+            --package @commitlint/config-conventional \
+            commitlint $RANGE --verbose

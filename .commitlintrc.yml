@@ -1,0 +1,6 @@
+extends:
+  - '@commitlint/config-conventional'
+rules:
+  # Repo style capitalizes the description ("feat: Add Claude Code plugin"),
+  # so the default lower-case-only subject rule is off.
+  subject-case: [0]
