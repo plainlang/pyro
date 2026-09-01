@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "pyro",
+  "description": "pyro, the open-source renderer for .plain specifications.",
+  "owner": {
+    "name": "Codeplain-ai",
+    "url": "https://github.com/Codeplain-ai"
+  },
+  "plugins": [
+    {
+      "name": "pyro",
+      "description": "Renders a .plain specification module into working, tested code.",
+      "source": "./",
+      "category": "development",
+      "homepage": "https://github.com/Codeplain-ai/pyro"
+    }
+  ]
+}
