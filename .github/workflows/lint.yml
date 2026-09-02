@@ -9,6 +9,8 @@ on:
 jobs:
   commitlint:
     name: Commit message format
+    # Skip the bot's own release push.
+    if: github.actor != 'plainlang-release[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

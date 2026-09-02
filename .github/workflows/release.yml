@@ -17,6 +17,8 @@ permissions:
 jobs:
   release:
     name: Semantic release
+    # Skip the bot's own release push.
+    if: github.actor != 'plainlang-release[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,16 +26,10 @@ jobs:
           # Full history and tags, or semantic-release cannot see the last release.
           fetch-depth: 0
           ref: ${{ github.ref_name }}
-          # Don't keep GITHUB_TOKEN in the git config: its Authorization header
-          # would override the app token semantic-release pushes with, and the
-          # push gets rejected as github-actions[bot].
+          # Don't let GITHUB_TOKEN shadow the bot token.
           persist-credentials: false
 
-      # The default GITHUB_TOKEN cannot push to main/dev (branch ruleset), so
-      # the release commit is pushed as the plainlang-release app, which is
-      # on the ruleset's bypass list. Unlike GITHUB_TOKEN pushes, app-token
-      # pushes trigger workflows: Lint runs on the release commit and Release
-      # re-runs once as a no-op (a chore commit never bumps the version).
+      # The bot skips the branch protection checks.
       - name: Mint release-bot token
         id: app-token
         uses: actions/create-github-app-token@v2
