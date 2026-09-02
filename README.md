@@ -105,3 +105,48 @@ The helper scripts have a test suite that runs anywhere Python does:
 ```bash
 python3 tests/run_tests.py
 ```
+
+## Development
+
+### Branches
+
+All work happens on the `dev` branch. `main` never gets its own commits: it only
+fast-forwards to a commit already on `dev`. `main` always points at the
+latest stable release — which is what plugin installs fetch.
+
+New development happens on feature branches, opened as PRs into `dev` and
+rebase-merged, with
+[conventional commits](https://www.conventionalcommits.org). Never target
+`main`.
+
+### Versioning
+
+Agent plugins are installed from the repo URL, and the installed version is
+read from manifest files. This has two consequences:
+* `main`'s HEAD must always point at the latest stable version
+* the version must be stamped into the manifest files — a git tag is not enough
+
+Therefore every release gets a release commit that stamps the version into
+those files.
+
+Versions are computed from the commit history by
+[python-semantic-release](https://python-semantic-release.readthedocs.io).
+`CHANGELOG.md` and the version fields in `pyproject.toml`, `plugin.json`, and
+`SKILL.md` are written by the release tooling — never edit them by hand.
+
+### Releases
+
+**Releasing means merging a release PR.** A bot maintains a release PR into
+`dev` holding the next version's changelog and version stamps. Rebase-merge it
+and the release is tagged and published on GitHub automatically.
+
+There are two kinds of release, and they differ in how the PR opens:
+
+- **Stable release** (`release-next` → `dev`): the PR opens and stays current
+  on its own whenever `dev` has unreleased changes. Merging it also moves
+  `main` to the release.
+
+- **Prerelease** (`prerelease-next` → `dev`): the PR never opens on its own —
+  run the *Release PR* workflow manually to open it. Merging it releases the
+  next prerelease `x.y.z-rc.N` and does not touch `main`.
+

@@ -1,13 +1,16 @@
 name: Lint
 
+# Checks that every commit message follows the conventional commits format.
+
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened]
+  # main only receives fast-forward pushes of commits already linted on dev.
   push:
-    branches: [main, dev]
+    branches: [dev]
 
 jobs:
-  commitlint:
+  lint:
     name: Commit message format
     runs-on: ubuntu-latest
     steps:
