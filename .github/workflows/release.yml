@@ -24,6 +24,10 @@ jobs:
           # Full history and tags, or semantic-release cannot see the last release.
           fetch-depth: 0
           ref: ${{ github.ref_name }}
+          # Don't keep GITHUB_TOKEN in the git config: its Authorization header
+          # would override the app token semantic-release pushes with, and the
+          # push gets rejected as github-actions[bot].
+          persist-credentials: false
 
       # The default GITHUB_TOKEN cannot push to main/dev (branch ruleset), so
       # the release commit is pushed as the plainlang-release-bot app, which is
