@@ -30,7 +30,7 @@ jobs:
           persist-credentials: false
 
       # The default GITHUB_TOKEN cannot push to main/dev (branch ruleset), so
-      # the release commit is pushed as the plainlang-release-bot app, which is
+      # the release commit is pushed as the plainlang-release app, which is
       # on the ruleset's bypass list. Unlike GITHUB_TOKEN pushes, app-token
       # pushes trigger workflows: Lint runs on the release commit and Release
       # re-runs once as a no-op (a chore commit never bumps the version).
@@ -38,16 +38,16 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ vars.RELEASE_BOT_APP_ID }}
-          private-key: ${{ secrets.RELEASE_BOT_APP_PRIVATE_KEY }}
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
 
       - name: Version, tag and release
         id: release
         uses: python-semantic-release/python-semantic-release@v10.6.2
         with:
           github_token: ${{ steps.app-token.outputs.token }}
-          git_committer_name: 'plainlang-release-bot[bot]'
-          git_committer_email: '324082215+plainlang-release-bot[bot]@users.noreply.github.com'
+          git_committer_name: 'plainlang-release[bot]'
+          git_committer_email: '324082215+plainlang-release[bot]@users.noreply.github.com'
           # Changelog is maintained on main only.
           changelog: ${{ github.ref_name == 'main' }}
 
