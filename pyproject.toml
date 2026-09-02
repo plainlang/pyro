@@ -2,7 +2,7 @@
 # exists so python-semantic-release has a config home.
 [project]
 name = "pyro"
-version = "0.1.0-rc.1"
+version = "0.1.0-rc.2"
 description = "Renders a .plain specification module into working, tested code."
 readme = "README.md"
 requires-python = ">=3.8"
