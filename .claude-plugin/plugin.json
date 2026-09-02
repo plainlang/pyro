@@ -6,8 +6,8 @@
     "name": "Codeplain-ai",
     "url": "https://github.com/Codeplain-ai"
   },
-  "homepage": "https://github.com/Codeplain-ai/pyro",
-  "repository": "https://github.com/Codeplain-ai/pyro",
+  "homepage": "https://github.com/plainlang/pyro",
+  "repository": "https://github.com/plainlang/pyro",
   "keywords": ["plain", "spec", "codegen", "render", "sdd"],
   "skills": ["./skills/render-spec"]
 }
