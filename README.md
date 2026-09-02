@@ -20,7 +20,7 @@ in dependency order, and writes:
 ### Claude Code plugin (recommended)
 
 ```
-/plugin marketplace add Codeplain-ai/pyro
+/plugin marketplace add plainlang/pyro
 /plugin install pyro@pyro
 ```
 
@@ -34,7 +34,7 @@ To stay current automatically, turn on `autoUpdate` for the marketplace in
 {
   "extraKnownMarketplaces": {
     "pyro": {
-      "source": { "source": "github", "repo": "Codeplain-ai/pyro" },
+      "source": { "source": "github", "repo": "plainlang/pyro" },
       "autoUpdate": true
     }
   }
@@ -58,7 +58,7 @@ If you have Node available, install the skill with the `npx skills` tool:
 
 ```bash
 cd project
-npx skills add https://github.com/Codeplain-ai/pyro --agent claude-code
+npx skills add https://github.com/plainlang/pyro --agent claude-code
 ```
 
 This copies the skill straight into your agent's skills folder, so it is not

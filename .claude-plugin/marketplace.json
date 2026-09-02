@@ -12,7 +12,7 @@
       "description": "Renders a .plain specification module into working, tested code.",
       "source": "./",
       "category": "development",
-      "homepage": "https://github.com/Codeplain-ai/pyro"
+      "homepage": "https://github.com/plainlang/pyro"
     }
   ]
 }
