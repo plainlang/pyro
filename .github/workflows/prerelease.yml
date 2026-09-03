@@ -47,8 +47,10 @@ jobs:
           github_token: ${{ steps.app-token.outputs.token }}
           git_committer_name: 'plainlang-release[bot]'
           git_committer_email: '324082215+plainlang-release[bot]@users.noreply.github.com'
-          # The changelog is written when a stable release is cut, not per rc.
-          changelog: false
+          # rc releases write their changelog sections too: semantic-release
+          # sections the changelog per tag, so skipping rc's would leave their
+          # commits out of the stable release's section for good.
+          changelog: true
 
       - name: Prerelease summary
         if: always()
