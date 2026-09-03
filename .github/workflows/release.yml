@@ -21,7 +21,7 @@ jobs:
   release:
     name: Tag and publish release
     # Only release commits — a merged release PR of either channel.
-    if: startsWith(github.event.head_commit.message, 'chore: Release ')
+    if: "startsWith(github.event.head_commit.message, 'chore: Release ')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
