@@ -1,27 +1,27 @@
-name: Release
+name: Prerelease
 
 on:
   workflow_dispatch:
 
-# One release at a time: two dispatches in quick succession would otherwise
+# One prerelease at a time: two dispatches in quick succession would otherwise
 # race for the same version.
 concurrency:
-  group: release-${{ github.ref_name }}
+  group: prerelease
   cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
-  release:
-    name: Publish release
+  prerelease:
+    name: Publish prerelease
     runs-on: ubuntu-latest
     steps:
-      # main only moves by fast-forward; releases are cut from dev.
-      - name: Ensure the release runs on dev
+      # main only moves by fast-forward; all releases are cut from dev.
+      - name: Ensure the prerelease runs on dev
         if: github.ref_name != 'dev'
         run: |
-          echo "Releases can only be dispatched on dev, not '${{ github.ref_name }}'." >&2
+          echo "Prereleases can only be dispatched on dev, not '${{ github.ref_name }}'." >&2
           exit 1
 
       - uses: actions/checkout@v4
@@ -47,14 +47,14 @@ jobs:
           github_token: ${{ steps.app-token.outputs.token }}
           git_committer_name: 'plainlang-release[bot]'
           git_committer_email: '324082215+plainlang-release[bot]@users.noreply.github.com'
-          # Changelog is maintained on main only.
-          changelog: ${{ github.ref_name == 'main' }}
+          # The changelog is written when a stable release is cut, not per rc.
+          changelog: false
 
-      - name: Release summary
+      - name: Prerelease summary
         if: always()
         run: |
           if [ "${{ steps.release.outputs.released }}" = "true" ]; then
-            echo "Released ${{ steps.release.outputs.tag }} - ${{ steps.release.outputs.link }}" >> "$GITHUB_STEP_SUMMARY"
+            echo "Prereleased ${{ steps.release.outputs.tag }} - ${{ steps.release.outputs.link }}" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "No release: nothing in this push bumped the version." >> "$GITHUB_STEP_SUMMARY"
+            echo "No prerelease: nothing on dev bumped the version." >> "$GITHUB_STEP_SUMMARY"
           fi
