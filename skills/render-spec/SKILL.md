@@ -13,7 +13,7 @@ metadata:
 
 # Skill instructions
 
-Check skill version and report with "Running pyro/render-spec: <skill-version>".
+Report with "Running pyro/render-spec: <skill-version>".
 
 When starting each step or substep, report with a message "Starting Step <Step_ID>: <Description>".
 
