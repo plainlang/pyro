@@ -64,8 +64,11 @@ jobs:
             # dev's content; dev itself yields the rc group.
             git checkout -B main
           fi
-          NEXT="$(semantic-release version --print)"
-          LAST="$(semantic-release version --print-last-released || true)"
+          # GITHUB_OUTPUT is hidden from semantic-release: even --print writes
+          # its own version= into it, which would poison this step's outputs
+          # and make the no-bump detection below moot.
+          NEXT="$(env -u GITHUB_OUTPUT semantic-release version --print)"
+          LAST="$(env -u GITHUB_OUTPUT semantic-release version --print-last-released || true)"
           if [ -n "$NEXT" ] && [ "$NEXT" != "$LAST" ]; then
             echo "version=$NEXT" >> "$GITHUB_OUTPUT"
           fi
