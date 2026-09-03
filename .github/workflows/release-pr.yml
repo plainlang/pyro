@@ -1,11 +1,13 @@
 name: Release PR
 
-# Keeps a bot-maintained PR (release-next -> dev) holding the next stable
-# release commit; rebase-merging that PR is what cuts a release.
+# Keeps bot-maintained PRs into dev holding the next release commit, one per
+# channel (release-next for stable, prerelease-next for rc); rebase-merging
+# one is what cuts a release.
 
 on:
   push:
     branches: [dev]
+  # Dispatching opens the rc release PR, which is never opened automatically.
   workflow_dispatch:
 
 # Only the newest state of dev matters; supersede older refresh runs.
@@ -18,15 +20,25 @@ permissions:
 
 jobs:
   release-pr:
-    name: Maintain release PR
-    # Skip the stable release commit push — that is the release PR being
-    # merged, which release.yml handles. rc bump pushes (an -rc. suffix in the
-    # subject) must still refresh the PR so it stays rebased on dev.
+    name: Maintain ${{ matrix.channel }} release PR
+    # Skip release commit pushes entirely: release.yml handles them and
+    # re-dispatches this workflow once the new tag exists.
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      !startsWith(github.event.head_commit.message, 'chore: Release ') ||
-      contains(github.event.head_commit.message, '-rc.')
+      !startsWith(github.event.head_commit.message, 'chore: Release ')
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Only the stable PR opens on its own; the rc PR takes a manual
+          # dispatch to open, and is then refreshed like the stable one.
+          - channel: stable
+            branch: release-next
+            auto_open: true
+          - channel: rc
+            branch: prerelease-next
+            auto_open: false
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,13 +55,15 @@ jobs:
       - name: Install python-semantic-release
         run: pip install python-semantic-release==10.6.2
 
-      # semantic-release picks its release group by branch name: a local
-      # branch named "main" selects the stable group while pointing at dev's
-      # content, so this computes the stable (non-rc) version dev would ship.
-      - name: Compute next stable version
+      - name: Compute next ${{ matrix.channel }} version
         id: version
         run: |
-          git checkout -B main
+          if [ '${{ matrix.channel }}' = 'stable' ]; then
+            # semantic-release picks its release group by branch name: a local
+            # branch named "main" selects the stable group while pointing at
+            # dev's content; dev itself yields the rc group.
+            git checkout -B main
+          fi
           NEXT="$(semantic-release version --print)"
           LAST="$(semantic-release version --print-last-released || true)"
           if [ -n "$NEXT" ] && [ "$NEXT" != "$LAST" ]; then
@@ -64,19 +78,28 @@ jobs:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
 
-      - name: Close the release PR when nothing is releasable
-        if: steps.version.outputs.version == ''
+      - name: Look up the open release PR
+        id: pr
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          PR="$(gh pr list --repo "$GITHUB_REPOSITORY" --head release-next --base dev --state open --json number --jq '.[].number')"
-          if [ -n "$PR" ]; then
-            gh pr close "$PR" --repo "$GITHUB_REPOSITORY" \
-              --comment "Nothing releasable on dev anymore." --delete-branch
-          fi
+          PR="$(gh pr list --repo "$GITHUB_REPOSITORY" --head '${{ matrix.branch }}' --base dev --state open --json number --jq '.[].number')"
+          echo "number=$PR" >> "$GITHUB_OUTPUT"
+
+      - name: Close the release PR when nothing is releasable
+        if: steps.version.outputs.version == '' && steps.pr.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh pr close '${{ steps.pr.outputs.number }}' --repo "$GITHUB_REPOSITORY" \
+            --comment "Nothing releasable on dev anymore." --delete-branch
 
       - name: Build the release commit
-        if: steps.version.outputs.version != ''
+        # Without an open PR, only auto_open channels and manual dispatches
+        # may create one.
+        if: >-
+          steps.version.outputs.version != '' &&
+          (matrix.auto_open || steps.pr.outputs.number != '' || github.event_name == 'workflow_dispatch')
         env:
           VERSION: ${{ steps.version.outputs.version }}
           # semantic-release takes the commit author from this env var; it
@@ -95,8 +118,10 @@ jobs:
           git show HEAD --format='' --unified=0 -- CHANGELOG.md \
             | grep -v '^+++' | grep '^+' | cut -c2- > /tmp/release-notes.md
 
-      - name: Push release-next and upsert the PR
-        if: steps.version.outputs.version != ''
+      - name: Push ${{ matrix.branch }} and upsert the PR
+        if: >-
+          steps.version.outputs.version != '' &&
+          (matrix.auto_open || steps.pr.outputs.number != '' || github.event_name == 'workflow_dispatch')
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ steps.version.outputs.version }}
@@ -110,13 +135,12 @@ jobs:
           fi
           git push --force \
             "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
-            HEAD:refs/heads/release-next
+            'HEAD:refs/heads/${{ matrix.branch }}'
           TITLE="chore: Release ${VERSION}"
-          PR="$(gh pr list --repo "$GITHUB_REPOSITORY" --head release-next --base dev --state open --json number --jq '.[].number')"
-          if [ -n "$PR" ]; then
-            gh pr edit "$PR" --repo "$GITHUB_REPOSITORY" \
+          if [ -n '${{ steps.pr.outputs.number }}' ]; then
+            gh pr edit '${{ steps.pr.outputs.number }}' --repo "$GITHUB_REPOSITORY" \
               --title "$TITLE" --body-file /tmp/release-notes.md
           else
-            gh pr create --repo "$GITHUB_REPOSITORY" --base dev --head release-next \
+            gh pr create --repo "$GITHUB_REPOSITORY" --base dev --head '${{ matrix.branch }}' \
               --title "$TITLE" --body-file /tmp/release-notes.md
           fi
