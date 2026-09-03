@@ -1,5 +1,7 @@
 name: Lint
 
+# Checks that every commit message follows the conventional commits format.
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
