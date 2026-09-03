@@ -1,5 +1,8 @@
 name: Prerelease
 
+# Cuts an rc prerelease from dev on manual dispatch: version bump commit,
+# tag, and a GitHub release marked as prerelease.
+
 on:
   workflow_dispatch:
 

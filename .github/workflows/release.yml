@@ -1,5 +1,8 @@
 name: Release
 
+# Turns a merged release PR into the stable release: tag, GitHub release,
+# and a fast-forward of main to the release commit.
+
 on:
   push:
     branches: [dev]

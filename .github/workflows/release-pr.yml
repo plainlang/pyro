@@ -1,5 +1,8 @@
 name: Release PR
 
+# Keeps a bot-maintained PR (release-next -> dev) holding the next stable
+# release commit; rebase-merging that PR is what cuts a release.
+
 on:
   push:
     branches: [dev]
