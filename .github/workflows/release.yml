@@ -1,28 +1,27 @@
 name: Release
 
-# Turns a merged release PR into the stable release: tag, GitHub release,
-# and a fast-forward of main to the release commit.
+# Turns a merged release PR into a release: tag and GitHub release for both
+# channels, plus a fast-forward of main to the release commit for stable.
 
 on:
   push:
     branches: [dev]
 
-# One promotion at a time; never cancel a half-done release.
+# One release at a time; never cancel a half-done release.
 concurrency:
   group: release
   cancel-in-progress: false
 
 permissions:
   contents: read
+  # Lets the last step re-dispatch the Release PR workflow.
+  actions: write
 
 jobs:
   release:
-    name: Tag release and fast-forward main
-    # Only the stable release commit — a merged release PR. The -rc. check
-    # keeps prerelease bump commits out.
-    if: >-
-      startsWith(github.event.head_commit.message, 'chore: Release ') &&
-      !contains(github.event.head_commit.message, '-rc.')
+    name: Tag and publish release
+    # Only release commits — a merged release PR of either channel.
+    if: startsWith(github.event.head_commit.message, 'chore: Release ')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,6 +45,10 @@ jobs:
             exit 1
           fi
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          case "$VERSION" in
+            *-rc.*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;;
+            *) echo "prerelease=false" >> "$GITHUB_OUTPUT" ;;
+          esac
 
       # The bot skips the branch protection checks.
       - name: Sign in as release bot
@@ -55,30 +58,46 @@ jobs:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
 
-      - name: Tag and fast-forward main
+      - name: Tag the release
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git tag "v${VERSION}"
-          git push "$REMOTE" "refs/tags/v${VERSION}"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            "refs/tags/v${VERSION}"
+
+      - name: Fast-forward main
+        if: steps.version.outputs.prerelease == 'false'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
           # Fast-forward by construction: main is an ancestor of dev. Git
           # rejecting a non-ff push here is the safety net for a broken invariant.
-          git push "$REMOTE" HEAD:refs/heads/main
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            HEAD:refs/heads/main
 
       - name: Create the GitHub release
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ steps.version.outputs.version }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
         run: |
           # The changelog lines the release commit added are the release notes.
           git show HEAD --format='' --unified=0 -- CHANGELOG.md \
             | grep -v '^+++' | grep '^+' | cut -c2- > /tmp/release-notes.md
           gh release create "v${VERSION}" --repo "$GITHUB_REPOSITORY" \
-            --title "v${VERSION}" --notes-file /tmp/release-notes.md
+            --title "v${VERSION}" --notes-file /tmp/release-notes.md \
+            $([ "$PRERELEASE" = "true" ] && echo --prerelease)
 
-      - name: Promotion summary
+      # The Release PR workflow skips release commit pushes to avoid racing
+      # this run; now that the tag exists, let it rebase or close its PRs.
+      - name: Refresh the release PRs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run release-pr.yml --repo "$GITHUB_REPOSITORY" --ref dev
+
+      - name: Release summary
         env:
           VERSION: ${{ steps.version.outputs.version }}
-        run: echo "Released v${VERSION} and fast-forwarded main to $(git rev-parse --short HEAD)." >> "$GITHUB_STEP_SUMMARY"
+        run: echo "Released v${VERSION} at $(git rev-parse --short HEAD)." >> "$GITHUB_STEP_SUMMARY"
