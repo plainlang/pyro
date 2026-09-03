@@ -1,4 +1,4 @@
-name: Promote
+name: Release
 
 on:
   push:
@@ -6,14 +6,14 @@ on:
 
 # One promotion at a time; never cancel a half-done release.
 concurrency:
-  group: promote
+  group: release
   cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
-  promote:
+  release:
     name: Tag release and fast-forward main
     # Only the stable release commit — a merged release PR. The -rc. check
     # keeps prerelease bump commits out.

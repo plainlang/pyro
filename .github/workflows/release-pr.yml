@@ -17,7 +17,7 @@ jobs:
   release-pr:
     name: Maintain release PR
     # Skip the stable release commit push — that is the release PR being
-    # merged, which promote.yml handles. rc bump pushes (an -rc. suffix in the
+    # merged, which release.yml handles. rc bump pushes (an -rc. suffix in the
     # subject) must still refresh the PR so it stays rebased on dev.
     if: >-
       github.event_name == 'workflow_dispatch' ||
