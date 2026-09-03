@@ -1,0 +1,109 @@
+name: Release PR
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+# Only the newest state of dev matters; supersede older refresh runs.
+concurrency:
+  group: release-pr
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  release-pr:
+    name: Maintain release PR
+    # Skip the stable release commit push — that is the release PR being
+    # merged, which promote.yml handles. rc bump pushes (an -rc. suffix in the
+    # subject) must still refresh the PR so it stays rebased on dev.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      !startsWith(github.event.head_commit.message, 'chore: Release ') ||
+      contains(github.event.head_commit.message, '-rc.')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history and tags, or semantic-release cannot see the last release.
+          fetch-depth: 0
+          ref: dev
+          # Don't let GITHUB_TOKEN shadow the bot token.
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install python-semantic-release
+        run: pip install python-semantic-release==10.6.2
+
+      # semantic-release picks its release group by branch name: a local
+      # branch named "main" selects the stable group while pointing at dev's
+      # content, so this computes the stable (non-rc) version dev would ship.
+      - name: Compute next stable version
+        id: version
+        run: |
+          git checkout -B main
+          NEXT="$(semantic-release version --print)"
+          LAST="$(semantic-release version --print-last-released || true)"
+          if [ -n "$NEXT" ] && [ "$NEXT" != "$LAST" ]; then
+            echo "version=$NEXT" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The bot skips the branch protection checks.
+      - name: Sign in as release bot
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
+      - name: Close the release PR when nothing is releasable
+        if: steps.version.outputs.version == ''
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          PR="$(gh pr list --repo "$GITHUB_REPOSITORY" --head release-next --base dev --state open --json number --jq '.[].number')"
+          if [ -n "$PR" ]; then
+            gh pr close "$PR" --repo "$GITHUB_REPOSITORY" \
+              --comment "Nothing releasable on dev anymore." --delete-branch
+          fi
+
+      - name: Build the release commit
+        if: steps.version.outputs.version != ''
+        run: |
+          git config user.name 'plainlang-release[bot]'
+          git config user.email '324082215+plainlang-release[bot]@users.noreply.github.com'
+          semantic-release version --no-tag --no-push --no-vcs-release
+          # The changelog lines this commit adds double as the PR body.
+          git show HEAD --format='' --unified=0 -- CHANGELOG.md \
+            | grep -v '^+++' | grep '^+' | cut -c2- > /tmp/release-notes.md
+
+      - name: Push release-next and upsert the PR
+        if: steps.version.outputs.version != ''
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # A release may have landed on dev while this run was working;
+          # don't resurrect a stale PR over it.
+          git fetch origin dev
+          if [ "$(git rev-parse origin/dev)" != "$(git rev-parse HEAD~1)" ]; then
+            echo "dev moved during this run; the next push refreshes the PR." >&2
+            exit 0
+          fi
+          git push --force \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            HEAD:refs/heads/release-next
+          TITLE="chore: Release ${VERSION}"
+          PR="$(gh pr list --repo "$GITHUB_REPOSITORY" --head release-next --base dev --state open --json number --jq '.[].number')"
+          if [ -n "$PR" ]; then
+            gh pr edit "$PR" --repo "$GITHUB_REPOSITORY" \
+              --title "$TITLE" --body-file /tmp/release-notes.md
+          else
+            gh pr create --repo "$GITHUB_REPOSITORY" --base dev --head release-next \
+              --title "$TITLE" --body-file /tmp/release-notes.md
+          fi
