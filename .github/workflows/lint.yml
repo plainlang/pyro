@@ -3,8 +3,9 @@ name: Lint
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  # main only receives fast-forward pushes of commits already linted on dev.
   push:
-    branches: [main, dev]
+    branches: [dev]
 
 jobs:
   commitlint:
