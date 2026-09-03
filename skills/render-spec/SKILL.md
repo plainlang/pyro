@@ -8,7 +8,7 @@ description: >-
   and the target module's output in dist/.
 argument-hint: <TargetModule>
 metadata:
-  version: "0.1.1-rc.1"
+  version: "0.1.1"
 ---
 
 # Skill instructions

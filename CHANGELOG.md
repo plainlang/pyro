@@ -8,6 +8,9 @@ entries go directly below the marker.
 
 <!-- version list -->
 
+## v0.1.1 (2026-09-03)
+
+
 ## v0.1.1-rc.1 (2026-09-03)
 
 ### Bug Fixes
