@@ -1,0 +1,81 @@
+name: Promote
+
+on:
+  push:
+    branches: [dev]
+
+# One promotion at a time; never cancel a half-done release.
+concurrency:
+  group: promote
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    name: Tag release and fast-forward main
+    # Only the stable release commit — a merged release PR. The -rc. check
+    # keeps prerelease bump commits out.
+    if: >-
+      startsWith(github.event.head_commit.message, 'chore: Release ') &&
+      !contains(github.event.head_commit.message, '-rc.')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: dev
+          # Don't let GITHUB_TOKEN shadow the bot token.
+          persist-credentials: false
+
+      - name: Read and verify the release version
+        id: version
+        run: |
+          VERSION="$(python3 -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')"
+          SUBJECT="$(git log -1 --format=%s)"
+          if [ "$SUBJECT" != "chore: Release ${VERSION}" ]; then
+            echo "Commit subject '${SUBJECT}' does not match pyproject version '${VERSION}'." >&2
+            exit 1
+          fi
+          if git rev-parse -q --verify "refs/tags/v${VERSION}" >/dev/null; then
+            echo "Tag v${VERSION} already exists." >&2
+            exit 1
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      # The bot skips the branch protection checks.
+      - name: Sign in as release bot
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
+      - name: Tag and fast-forward main
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git tag "v${VERSION}"
+          git push "$REMOTE" "refs/tags/v${VERSION}"
+          # Fast-forward by construction: main is an ancestor of dev. Git
+          # rejecting a non-ff push here is the safety net for a broken invariant.
+          git push "$REMOTE" HEAD:refs/heads/main
+
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # The changelog lines the release commit added are the release notes.
+          git show HEAD --format='' --unified=0 -- CHANGELOG.md \
+            | grep -v '^+++' | grep '^+' | cut -c2- > /tmp/release-notes.md
+          gh release create "v${VERSION}" --repo "$GITHUB_REPOSITORY" \
+            --title "v${VERSION}" --notes-file /tmp/release-notes.md
+
+      - name: Promotion summary
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: echo "Released v${VERSION} and fast-forwarded main to $(git rev-parse --short HEAD)." >> "$GITHUB_STEP_SUMMARY"
