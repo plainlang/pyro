@@ -115,12 +115,14 @@ stable release — which is what plugin installs fetch.
 - **Features** land on `dev` via rebase-merged PRs with
   [conventional commits](https://www.conventionalcommits.org) (never target
   `main`).
-- **Prereleases**: dispatch the *Prerelease* workflow on `dev` to cut an
-  `x.y.z-rc.N` tag.
-- **Stable releases**: a bot keeps a release PR (`release-next` → `dev`) up to
-  date with the next version, its file stamps, and the changelog.
-  **Rebase-merge it** to release — the commit is tagged, published as a GitHub
-  release, and `main` is fast-forwarded to it automatically.
+- **Every release is a bot-maintained PR** into `dev` holding the next
+  version's file stamps and changelog; **rebase-merge it** to release. The
+  commit is tagged and published as a GitHub release automatically.
+- **Stable releases** (`release-next` → `dev`): the PR opens on its own
+  whenever `dev` has releasable commits; merging it also fast-forwards `main`.
+- **Prereleases** (`prerelease-next` → `dev`): dispatch the *Release PR*
+  workflow to open the PR for the next `x.y.z-rc.N`; merging it cuts the rc
+  without touching `main`.
 
 Versions are computed from the commit history by
 [python-semantic-release](https://python-semantic-release.readthedocs.io);
