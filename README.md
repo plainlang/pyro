@@ -105,3 +105,24 @@ The helper scripts have a test suite that runs anywhere Python does:
 ```bash
 python3 tests/run_tests.py
 ```
+
+## Branching and releases
+
+`dev` and `main` share one linear history; `main` is a pointer that only ever
+fast-forwards to a commit already on `dev`, so its HEAD is always the latest
+stable release — which is what plugin installs fetch.
+
+- **Features** land on `dev` via rebase-merged PRs with
+  [conventional commits](https://www.conventionalcommits.org) (never target
+  `main`).
+- **Prereleases**: dispatch the *Prerelease* workflow on `dev` to cut an
+  `x.y.z-rc.N` tag.
+- **Stable releases**: a bot keeps a release PR (`release-next` → `dev`) up to
+  date with the next version, its file stamps, and the changelog.
+  **Rebase-merge it** to release — the commit is tagged, published as a GitHub
+  release, and `main` is fast-forwarded to it automatically.
+
+Versions are computed from the commit history by
+[python-semantic-release](https://python-semantic-release.readthedocs.io);
+`CHANGELOG.md` and the version fields in `pyproject.toml`, `plugin.json`, and
+`SKILL.md` are written by the release tooling, never by hand.
