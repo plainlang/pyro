@@ -1,12 +1,10 @@
 name: Release
 
 on:
-  push:
-    branches: [main, dev]
   workflow_dispatch:
 
-# One release at a time per branch: two pushes in quick succession would
-# otherwise race for the same version.
+# One release at a time: two dispatches in quick succession would otherwise
+# race for the same version.
 concurrency:
   group: release-${{ github.ref_name }}
   cancel-in-progress: false
@@ -17,10 +15,15 @@ permissions:
 jobs:
   release:
     name: Publish release
-    # Skip the bot's own release push.
-    if: github.actor != 'plainlang-release[bot]'
     runs-on: ubuntu-latest
     steps:
+      # main only moves by fast-forward; releases are cut from dev.
+      - name: Ensure the release runs on dev
+        if: github.ref_name != 'dev'
+        run: |
+          echo "Releases can only be dispatched on dev, not '${{ github.ref_name }}'." >&2
+          exit 1
+
       - uses: actions/checkout@v4
         with:
           # Full history and tags, or semantic-release cannot see the last release.
