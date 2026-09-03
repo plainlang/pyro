@@ -8,6 +8,39 @@ entries go directly below the marker.
 
 <!-- version list -->
 
+## v0.1.1-rc.1 (2026-09-03)
+
+### Bug Fixes
+
+- T1
+  ([`9b2db2a`](https://github.com/plainlang/pyro/commit/9b2db2adb9fc2931b527e4ee1ef71e3de4b61f7c))
+
+### Continuous Integration
+
+- Disable creating GitHub releases for now
+  ([`7039ce7`](https://github.com/plainlang/pyro/commit/7039ce77235c6ff37f4e3506806b348d9c63ac72))
+
+- Drop the direct prerelease workflow
+  ([`7e4d275`](https://github.com/plainlang/pyro/commit/7e4d2751d65a81d1d8077786a288422cec7cda6f))
+
+- Keep semantic-release from poisoning the version step outputs
+  ([`7a10f62`](https://github.com/plainlang/pyro/commit/7a10f62d667a20279594e1556545f9757f013b8c))
+
+- Maintain both release channels as PRs
+  ([`d3bef44`](https://github.com/plainlang/pyro/commit/d3bef44f42afc0c2b1edf809649c9bf17430aa01))
+
+- Quote the release job condition
+  ([`0ccc9c1`](https://github.com/plainlang/pyro/commit/0ccc9c1fc4e72acbc93db8410ce9f2f8b9d1e125))
+
+- Release rc versions from a merged release PR
+  ([`5d81661`](https://github.com/plainlang/pyro/commit/5d81661c0032638316ee3853bef0ae6ff4c83b11))
+
+### Documentation
+
+- Update the release flow for PR-based prereleases
+  ([`56a8419`](https://github.com/plainlang/pyro/commit/56a8419ef8c5056321ff9e126a1674a53fa6bcc8))
+
+
 ## v0.1.0 (2026-09-03)
 
 ### Continuous Integration
