@@ -78,6 +78,8 @@ jobs:
             HEAD:refs/heads/main
 
       - name: Create the GitHub release
+        # Temporarily disabled; tags and main are the source of truth for now.
+        if: false
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ steps.version.outputs.version }}
