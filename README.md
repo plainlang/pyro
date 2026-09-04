@@ -152,4 +152,3 @@ There are two kinds of release, and they differ in how the PR opens:
 - **Prerelease** (`prerelease-next` → `dev`): the PR never opens on its own —
   run the *Release PR* workflow manually to open it. Merging it releases the
   next prerelease `x.y.z-rc.N` and does not touch `main`.
-
