@@ -40,7 +40,7 @@ jobs:
             branch: prerelease-next
             auto_open: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # Full history and tags, or semantic-release cannot see the last release.
           fetch-depth: 0
@@ -48,7 +48,7 @@ jobs:
           # Don't let GITHUB_TOKEN shadow the bot token.
           persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
