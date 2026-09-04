@@ -99,7 +99,8 @@ Create module's conformance tests folder `conf_tests/<module>`.
 
 Create module's implementation code folder `plain_modules/<module>`.
 
-If there's previous rendered module: copy complete contents of `plain_modules/<previous-module>` folder to the current module's folder `plain_modules/<module>` (e.g. on unix with a command: `cp -r plain_modules/<previous_module>/* plain_modules/<module>/`).
+If there's previous rendered module, copy its complete contents to the current module's folder:
+`<python> "<skill_folder>/scripts/copy_folder.py" plain_modules/<previous_module> plain_modules/<module>`
 
 ### Step 4.1: Specs, reqs, test scenarios
 Report with a message "Step 4.1: Loading specs, writing reqs and test scenarios for: <module> + <required-or-imported-modules>".
@@ -166,7 +167,8 @@ When all 4.x steps are done, continue with rendering the next module until no mo
 ## Step 5: Finalize and report
 
 When all modules are rendered do:
-- copy all of the files in the `plain_modules/<TargetModule>` folder to the `./dist` folder
+- copy all of the files in the `plain_modules/<TargetModule>` folder to the `./dist` folder:
+  `<python> "<skill_folder>/scripts/copy_folder.py" plain_modules/<TargetModule> dist`
 - prepare a short report on the :plainImplementationCode: and :ConformanceTests:
 - present commands to run tests (unit and/or conformance tests)
 - present the command to run the rendered <TargetModule>
