@@ -1,17 +1,17 @@
-name: Lint
+name: PR checks
 
-# Checks that every commit message follows the conventional commits format.
-# PRs are the only entry point that needs linting: dev takes rebase-merged PRs
-# only (which keep commit messages verbatim) and main only receives
-# fast-forward pushes from dev.
+# Everything a PR must pass before merging into dev. PRs are the only entry
+# point that needs checking: dev takes rebase-merged PRs only (which keep
+# commit messages verbatim) and main only receives fast-forward pushes from
+# dev.
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  lint:
-    name: Commit message format
+  commitlint:
+    name: Validations / commit messages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
