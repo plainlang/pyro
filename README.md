@@ -100,7 +100,8 @@ them works.
 
 ## Tests
 
-The helper scripts have a test suite that runs anywhere Python does:
+Each helper script has its own `tests/run_<name>_tests.py` suite;
+`tests/run_tests.py` discovers and runs them all, anywhere Python does:
 
 ```bash
 python3 tests/run_tests.py
