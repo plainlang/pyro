@@ -6,7 +6,6 @@ description: >-
   and renders its required/imported modules in dependency order, producing
   implementation code in plain_modules/, conformance tests in conf_tests/,
   and the target module's output in dist/.
-argument-hint: <TargetModule>
 metadata:
   version: "0.1.0"
 ---
