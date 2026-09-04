@@ -61,3 +61,30 @@ jobs:
 
       - name: Run tests
         run: python tests/run_tests.py
+
+  plugin-manifests:
+    name: Validations / agent plugin manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Install Claude Code
+        env:
+          # Audit is advisory-only and its registry endpoint outages stall npm
+          # for minutes, so skip it for this throwaway toolchain install.
+          NPM_CONFIG_AUDIT: 'false'
+          NPM_CONFIG_FUND: 'false'
+        run: npm install -g @anthropic-ai/claude-code
+
+      # Validation is local; no API key involved. On the repo root the CLI
+      # picks marketplace.json and ignores plugin.json, so validate the
+      # plugin manifest by explicit path as well.
+      - name: Validate marketplace manifest
+        run: claude plugin validate --strict .
+
+      - name: Validate plugin manifest
+        run: claude plugin validate --strict .claude-plugin/plugin.json
