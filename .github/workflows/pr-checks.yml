@@ -35,3 +35,29 @@ jobs:
             --package @commitlint/cli \
             --package @commitlint/config-conventional \
             commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
+
+  tests:
+    name: Tests / python (${{ matrix.label }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # The suite is stdlib-only and asserts byte-identical output across
+        # platforms; running both OSes is what proves the skill's
+        # cross-platform claim. The label keeps the job name (which branch
+        # protection references) stable across runner image renames.
+        include:
+          - os: ubuntu-latest
+            label: ubuntu
+          - os: windows-latest
+            label: windows
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          # Oldest version the skill supports, per pyproject requires-python.
+          python-version: '3.8'
+
+      - name: Run tests
+        run: python tests/run_tests.py
