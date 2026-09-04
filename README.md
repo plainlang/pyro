@@ -106,18 +106,20 @@ The helper scripts have a test suite that runs anywhere Python does:
 python3 tests/run_tests.py
 ```
 
-## Development
+## Development workflow
 
-### Branches
+### Branches and commits
 
-All work happens on the `dev` branch. `main` never gets its own commits: it only
-fast-forwards to a commit already on `dev`. `main` always points at the
-latest stable release — which is what plugin installs fetch.
+The project uses two channel branches, `dev` and `main`, which share the same
+git history.
 
-New development happens on feature branches, opened as PRs into `dev` and
-rebase-merged, with
-[conventional commits](https://www.conventionalcommits.org). Never target
-`main`.
+`main` always points at the latest stable release — the commit that Claude and
+Codex plugin installs fetch. It never gets its own commits; it only
+fast-forwards to a commit already on `dev`.
+
+All development lands on `dev` first: open a feature branch as a PR into `dev`
+and rebase-merge it. Commit messages must follow
+[conventional commits](https://www.conventionalcommits.org) (enforced by CI).
 
 ### Versioning
 
