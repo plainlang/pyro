@@ -1,13 +1,13 @@
 name: Lint
 
 # Checks that every commit message follows the conventional commits format.
+# PRs are the only entry point that needs linting: dev takes rebase-merged PRs
+# only (which keep commit messages verbatim) and main only receives
+# fast-forward pushes from dev.
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  # main only receives fast-forward pushes of commits already linted on dev.
-  push:
-    branches: [dev]
 
 jobs:
   lint:
@@ -28,16 +28,10 @@ jobs:
           # for minutes, so skip it for this throwaway toolchain install.
           NPM_CONFIG_AUDIT: 'false'
           NPM_CONFIG_FUND: 'false'
-          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
-          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          if [ -n "$BASE_SHA" ] && git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
-            RANGE="--from $BASE_SHA --to $HEAD_SHA"
-          else
-            # New branch or unavailable base: check the tip commit only.
-            RANGE="--last"
-          fi
           npx --yes \
             --package @commitlint/cli \
             --package @commitlint/config-conventional \
-            commitlint $RANGE --verbose
+            commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
