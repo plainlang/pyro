@@ -89,6 +89,27 @@ jobs:
       - name: Validate plugin manifest
         run: claude plugin validate --strict .claude-plugin/plugin.json
 
+  skill-spec:
+    name: Validations / skills spec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      # skills-ref is the reference validator for the Agent Skills spec
+      # (agentskills.io); passing it keeps the skill portable beyond Claude
+      # Code (claude.ai uploads, Skills API).
+      - name: Validate the skill against the spec
+        env:
+          # Audit is advisory-only and its registry endpoint outages stall npx
+          # for minutes, so skip it for this throwaway toolchain install.
+          NPM_CONFIG_AUDIT: 'false'
+          NPM_CONFIG_FUND: 'false'
+        run: npx --yes skills-ref validate skills/render-spec
+
   version-sync:
     name: Validations / versions synced
     runs-on: ubuntu-latest
