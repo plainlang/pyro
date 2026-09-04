@@ -8,6 +8,10 @@ entries go directly below the marker.
 
 <!-- version list -->
 
+## v0.1.0 (2026-09-04)
+
+- Initial Release
+
 ## v0.1.0 (2026-09-03)
 
 ### Continuous Integration
