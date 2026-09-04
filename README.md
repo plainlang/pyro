@@ -6,7 +6,8 @@ that renders a `.plain` spec into working and tested code.
 Invoke it from your agent with:
 
 ```
-/pyro:render-spec <plain-spec-filename>
+/pyro:render-spec <plain-spec-filename>   # Claude Code plugin install
+/render-spec <plain-spec-filename>        # npx skills install or manual copy
 ```
 
 The skill resolves the modules the target spec requires or imports, renders them
@@ -17,7 +18,7 @@ in dependency order, and writes:
 
 ## Installation
 
-### Claude Code plugin (recommended)
+### Claude Code plugin
 
 ```
 /plugin marketplace add plainlang/pyro
@@ -52,7 +53,7 @@ claude plugin update pyro
 Both also live in the in-session `/plugin` menu. A restart is needed either way
 before the new version loads.
 
-### npx skills
+### Installation with npx skills
 
 If you have Node available, install the skill with the `npx skills` tool:
 
@@ -73,23 +74,10 @@ project.
 
 ### Manual installation
 
-Copy the `skills/render-spec` folder from this repo into your agent's skills folder.
-For Claude Code that is `.claude/skills/` in your project. Invoke it as
-`/render-spec <plain-spec-filename>`, and update it by pulling this repo and
-copying the folder again.
-
-## Using the skill
-
-Start your agent from the project's working dir and prompt it with the spec you
-want rendered. The exact form depends on how you installed:
-
-| Install | Invocation |
-| --- | --- |
-| Claude Code plugin | `/pyro:render-spec <plain-spec-filename>` |
-| npx skills or manual copy | `/render-spec <plain-spec-filename>` |
-
-The skill reports its own version on each run, so you can tell which build is
-loaded.
+Copy the `skills/render-spec` folder from this repo into your agent's skills
+folder. For Codex that is `.codex/skills/` in your project (or `~/.codex/skills/`
+for every project); other agents have an equivalent folder — see their docs.
+Update it by pulling this repo and copying the folder again.
 
 ## Requirements
 
@@ -153,4 +141,3 @@ There are two kinds of release, and they differ in how the PR opens:
 - **Prerelease** (`prerelease-next` → `dev`): the PR never opens on its own —
   run the *Release PR* workflow manually to open it. Merging it releases the
   next prerelease `x.y.z-rc.N` and does not touch `main`.
-
