@@ -24,6 +24,10 @@ jobs:
 
       - name: Lint commit messages
         env:
+          # Audit is advisory-only and its registry endpoint outages stall npx
+          # for minutes, so skip it for this throwaway toolchain install.
+          NPM_CONFIG_AUDIT: 'false'
+          NPM_CONFIG_FUND: 'false'
           BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
           HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: |
