@@ -88,3 +88,38 @@ jobs:
 
       - name: Validate plugin manifest
         run: claude plugin validate --strict .claude-plugin/plugin.json
+
+  version-sync:
+    name: Validations / versions synced
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      # semantic-release rewrites all three copies on release (see
+      # version_variables in pyproject.toml); this guards manual edits from
+      # letting them drift in between.
+      - name: Check the version copies agree
+        run: |
+          python3 - <<'EOF'
+          import json, re, sys, tomllib
+
+          versions = {}
+          with open("pyproject.toml", "rb") as f:
+              versions["pyproject.toml"] = tomllib.load(f)["project"]["version"]
+          with open(".claude-plugin/plugin.json") as f:
+              versions["plugin.json"] = json.load(f)["version"]
+          with open("skills/render-spec/SKILL.md") as f:
+              match = re.search(r'^\s*version:\s*"?([^"\s]+)"?\s*$', f.read(), re.M)
+          if not match:
+              sys.exit("No version found in SKILL.md frontmatter.")
+          versions["SKILL.md"] = match.group(1)
+
+          for name, version in versions.items():
+              print(f"{name}: {version}")
+          if len(set(versions.values())) != 1:
+              sys.exit("Version copies have drifted.")
+          EOF
