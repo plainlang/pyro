@@ -12,8 +12,8 @@ Invoke it from your agent with:
 
 The skill resolves the modules the target spec requires or imports, renders them
 in dependency order, and writes:
-* intermediate implementation code to `plain_modules/`
-* conformance tests to `conf_tests/`
+* intermediate implementation code to `plain_modules/<module>/code/`
+* conformance tests to `plain_modules/<module>/tests/`
 * the target module's output to `dist/`
 
 ## Installation

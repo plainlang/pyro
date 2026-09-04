@@ -4,6 +4,5 @@
 **/.venv
 **/.coverage
 **/*plain_modules/
-**/conformance_tests/
 **/dist
 **/__pycache__/

@@ -4,8 +4,8 @@ description: >-
   Renders a .plain specification module into working, tested code. Use when
   asked to render, build, or implement a .plain spec file or module: resolves
   and renders its required/imported modules in dependency order, producing
-  implementation code in plain_modules/, conformance tests in conf_tests/,
-  and the target module's output in dist/.
+  implementation code and tests in plain_modules/ with target module's output
+  in dist/ folder.
 metadata:
   version: "0.2.0"
 ---
@@ -44,9 +44,9 @@ Inputs artifacts are:
 
 Generated artifacts are:
 * :RenderPlan: is a table listing all the modules for rendering and current render state. :RenderPlan: lives in `./render-plan.md`.
-* :plainImplementationCode: lives under  `./plain_modules` and follow `./plain_modules/<module>` folder structure.
+* :plainImplementationCode: lives under  `./plain_modules` and follow `./plain_modules/<module>/code` folder structure.
 * :plainOutputCode: is the :plainImplementationCode: of the <TargetModule>.
-* :ConformanceTests: are living under `./conf_tests` and follow `./conf_tests/<module>` folder structure.
+* :ConformanceTests: are living under `./plain_modules` and follow `./plain_modules/<module>/tests` folder structure.
 
 ### Available tools and paths
 
@@ -95,9 +95,8 @@ Load the :RenderPlan: and for every module follow precisely the steps:
 ### Step 4.0: Folder preparation
 Report with a message "Step 4.0: Folder preparation of <module>".
 
-Create module's conformance tests folder `conf_tests/<module>`.
-
-Create module's implementation code folder `plain_modules/<module>`.
+Create module's implementation code folder `plain_modules/<module>/code`.
+Create module's conformance tests folder `plain_modules/<module>/tests`.
 
 If there's previous rendered module: copy complete contents of `plain_modules/<previous-module>` folder to the current module's folder `plain_modules/<module>` (e.g. on unix with a command: `cp -r plain_modules/<previous_module>/* plain_modules/<module>/`).
 
@@ -108,7 +107,7 @@ Run the command with helper script, where <specs> are the module's spec followed
 `<python> "<skill_folder>/scripts/plain_sections.py" all <specs>`
 The output of this command are all the necessary specs for succesfully rendering this module.
 
-Write exhaustive conformance test scenarios for every :plainFunctionality: of the <module>'s spec into `conf_tests/<module>/scenarios.md`.
+Write exhaustive conformance test scenarios for every :plainFunctionality: of the <module>'s spec into `plain_modules/<module>/test-scenarios.md`.
 * Scenarios should exhaustively test every :plainFunctionality: and should include :AcceptanceTests:.
 * Get the <module>'s :AcceptanceTests: with `<python> "<skill_folder>/scripts/plain_sections.py" acc-tests <module spec>` and cover every one of them.
 
@@ -120,18 +119,16 @@ Both lists hold the requirements verbatim - never paraphrase, reorder or drop an
 ### Step 4.2: Implement code and tests
 Report with a message "Step 4.2: Implementation of <module>".
 
-All the implementation code must be put in a self-contained `plain_modules/<module>` folder. NOTHING OUTSIDE OF THIS FOLDER can be touched during this step 4.2.
+All implementation and tests must be put in a self-contained `plain_modules/<module>` folder - do not change anything outside of this folder during this step 4.2.
 
-When referencing already rendered modules, ALWAYS REFER TO THEM RELATIVE FROM `plain_modules/<module>` folder - never include `plain_modules/<module>` in the import or require path.
+When referencing already rendered modules, do it inside `plain_modules/<module>/code` folder - don't reference anything outside of it. Previously rendered modules were already copied and are already there.
 
-Implement all :plainFunctionality: of <module> specs while respecting all the requirements in `plain_modules/<module>/impl-reqs.md`.
-
-Implement :UnitTests:.
+Implement all :plainFunctionality: of <module> specs and :UnitTests: in `plain_modules/<module>/code` while respecting all the requirements in `plain_modules/<module>/impl-reqs.md`.
 
 Implement :ConformanceTests: covering all test scenarios:
-* Read all test scenarios from `conf_tests/<module>/scenarios.md`.
+* Read all test scenarios from `plain_modules/<module>/test-scenarios.md`.
 * Read test requirements in `plain_modules/<module>/test-reqs.md`.
-* Implement the conformance tests covering all test scenarios and respecting test requirements into the `conf_tests/<module>` folder.
+* Implement the conformance tests covering all test scenarios and respecting test requirements into the `plain_modules/<module>/tests` folder.
 
 ### Step 4.3: Tests verification
 Report with a message "#Step 4.3: Tests verification of <module>".
@@ -166,7 +163,7 @@ When all 4.x steps are done, continue with rendering the next module until no mo
 ## Step 5: Finalize and report
 
 When all modules are rendered do:
-- copy all of the files in the `plain_modules/<TargetModule>` folder to the `./dist` folder
+- copy all of the files in the `plain_modules/<TargetModule>/code` folder to the `./dist` folder
 - prepare a short report on the :plainImplementationCode: and :ConformanceTests:
 - present commands to run tests (unit and/or conformance tests)
 - present the command to run the rendered <TargetModule>
