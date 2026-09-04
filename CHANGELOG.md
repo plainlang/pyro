@@ -8,6 +8,30 @@ entries go directly below the marker.
 
 <!-- version list -->
 
+## v0.1.1 (2026-09-04)
+
+### Bug Fixes
+
+- T3
+  ([`cbf3882`](https://github.com/plainlang/pyro/commit/cbf3882e11e39994f40353baf76773c77a1af4a5))
+
+### Continuous Integration
+
+- Bump actions to Node 24 runtimes
+  ([`a1be818`](https://github.com/plainlang/pyro/commit/a1be81851af5c8f9717244a981961d7ae62887fb))
+
+- Disable npm audit in the commitlint step
+  ([`343a8a5`](https://github.com/plainlang/pyro/commit/343a8a5dc469a91d1e57defd23acd8903b46f288))
+
+### Documentation
+
+- Link the PR-into-dev mention to a preset compare page
+  ([`faaad9d`](https://github.com/plainlang/pyro/commit/faaad9d8760385fdbc3ff22a49f39fb17e9fd790))
+
+- Update dev section
+  ([`4441be4`](https://github.com/plainlang/pyro/commit/4441be44ef2dd545295d5603c8b7b873295ef561))
+
+
 ## v0.1.0 (2026-09-03)
 
 ### Continuous Integration
