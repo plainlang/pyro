@@ -159,7 +159,7 @@ Report with a message "Step 4.5: Module folder cleanup".
 
 Remove any temporary files inside `plain_modules/<module>` folder:
 * `test-reqs.md` and `impl-reqs.md`.
-* any files that are result of testing or debugging during rendering.
+* remove installed dependency artifacts (e.g. `node_modules/`, `.venv/`, `__pycache__/`, vendored packages), but keep the dependency manifests and lock files so dependencies can be reinstalled later.
 
 
 When all 4.x steps are done, continue with rendering the next module until no more modules are left.
