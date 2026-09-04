@@ -12,9 +12,24 @@ metadata:
 
 # Skill instructions
 
-Check skill version and report with "Running pyro/render-spec: <skill-version>".
-
 When starting each step or substep, report with a message "Starting Step <Step_ID>: <Description>".
+
+# Step 0: Python interpreter and version check
+
+`<skill_folder>` is the absolute path of the directory holding this `SKILL.md`. Resolve it now and reuse it everywhere in this skill where `<skill_folder>` is used:
+  * On Claude Code it is `${CLAUDE_SKILL_DIR}`; on other agents derive it from the location this skill was loaded from.
+  * Never reach a file inside this skill by a relative path.
+
+`<python>` is required Python 3.8 or newer. Resolve it now and reuse it everywhere in this skill where `<python>` is used. Try these in order, keep the first that prints `ok`:
+* `py -3 "<skill_folder>/scripts/check_version.py" --check`
+* `python3 "<skill_folder>/scripts/check_version.py" --check`
+* `python "<skill_folder>/scripts/check_version.py" --check`
+
+Report the Python tool you settled on. If none prints `ok`, Python is a missing dependency: abort the rendering and report it.
+
+Run `<python> "<skill_folder>/scripts/check_version.py" check` and report with a message "Running pyro: <current>", where <current> and the other values are read from the command's output.
+* If the output shows `status: update-available`, warn with a message: "A newer pyro release <latest> is available (this is <current>)".
+* On any other status, or if the command fails, say nothing about updates and continue.
 
 # Step 1: Introduction, inputs and outputs
 
@@ -34,11 +49,8 @@ Generated artifacts are:
 * :ConformanceTests: are living under `./conf_tests` and follow `./conf_tests/<module>` folder structure.
 
 ### Available tools and paths
-`<skill_folder>` is the absolute path of the directory holding this `SKILL.md`. Resolve it once, now, and reuse it for every file inside this skill:
-  * On Claude Code it is `${CLAUDE_SKILL_DIR}`; on other agents derive it from the location this skill was loaded from.
-  * Never reach a file inside this skill by a relative path.
 
-`<python>` is the interpreter resolved in Step 3.0 - always run them with it, and never through a shell of your own, so the same command line works on macOS, Linux and Windows alike.
+`<python>` is the interpreter resolved in Step 0 - always run them with it, and never through a shell of your own, so the same command line works on macOS, Linux and Windows alike.
 
 `scripts/plain_sections.py` extracts one section out of any number of specs and prints it to stdout:
   `<python> "<skill_folder>/scripts/plain_sections.py" [--include-filename] [--output <path>] <section> <spec.plain> [<spec.plain> ...]`
@@ -62,18 +74,6 @@ Prepare a :RenderPlan: : List all the modules to be rendered in the planned rend
 If any dependency is missing - DO NOT INSTALL ANYTHING, but do:
 * immediatly abort the rendering
 * report with message listing missing dependencies.
-
-### Step 3.0: Python interpreter
-Report with a message "Step 3.0: Python interpreter".
-
-The tooling needs Python 3.8 or newer. Resolve it now before any other command, and reuse it as `<python>` everywhere below.
-
-Try these in order, keep the first that prints `ok`:
-* `py -3 "<skill_folder>/scripts/plain_sections.py" --check`
-* `python3 "<skill_folder>/scripts/plain_sections.py" --check`
-* `python "<skill_folder>/scripts/plain_sections.py" --check`
-
-Report the one you settled on. If none prints `ok`, Python is a missing dependency: abort the rendering.
 
 ### Step 3.1: Dependencies
 
@@ -170,3 +170,5 @@ When all modules are rendered do:
 - prepare a short report on the :plainImplementationCode: and :ConformanceTests:
 - present commands to run tests (unit and/or conformance tests)
 - present the command to run the rendered <TargetModule>
+
+Finally, report with a message: "pyro <current> (latest: <latest>)" - reiterating pyro versions and update warning resolved in Step 0.
