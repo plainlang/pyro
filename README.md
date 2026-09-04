@@ -117,7 +117,8 @@ git history.
 Codex plugin installs fetch. It never gets its own commits; it only
 fast-forwards to a commit already on `dev`.
 
-All development lands on `dev` first: open a feature branch as a PR into `dev`
+All development lands on `dev` first: open a feature branch as a
+[PR into `dev`](https://github.com/plainlang/pyro/compare/dev...dev?expand=1)
 and rebase-merge it. Commit messages must follow
 [conventional commits](https://www.conventionalcommits.org) (enforced by CI).
 
