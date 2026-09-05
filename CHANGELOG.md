@@ -8,6 +8,25 @@ entries go directly below the marker.
 
 <!-- version list -->
 
+## v0.3.0 (2026-09-05)
+
+### Continuous Integration
+
+- Retarget PRs opened against main to dev
+  ([`5b8fa52`](https://github.com/plainlang/pyro/commit/5b8fa52033b5fb15a1a78873b161dbfca5068ee4))
+
+### Features
+
+- Add copy_folder script for cross-platform folder copies
+  ([`5a35f24`](https://github.com/plainlang/pyro/commit/5a35f241a70e0ccdbeb2ceea6b0a6114c14269c7))
+
+- Clean up installed artifacts in mod.cleanup
+  ([`3809030`](https://github.com/plainlang/pyro/commit/380903082ad457c494e2ab260d1cf3b372130caf))
+
+- Use copy_folder script in SKILL.md copy steps
+  ([`d6e4656`](https://github.com/plainlang/pyro/commit/d6e46563a54f02a208c6c50ed3b55ac72a7cd8df))
+
+
 ## v0.2.0 (2026-09-04)
 
 ### Bug Fixes
