@@ -1,0 +1,42 @@
+name: Retarget main PRs
+
+# main only moves when the release bot fast-forwards it (see release.yml);
+# every merge lands on dev. A PR opened against main is always a mistake -
+# the "Protect main" ruleset already makes it unmergeable, and this workflow
+# fixes it up: retarget the base to dev and leave a comment saying so.
+#
+# pull_request_target rather than pull_request: the token needs write access
+# to edit the PR, also when the head lives in a fork. Safe here because the
+# PR's code is never checked out or executed.
+
+on:
+  pull_request_target:
+    types: [opened, reopened, edited]
+    # Base filter: runs only while the base is main. Once retargeted, later
+    # edits carry base dev and no longer trigger, so this cannot loop.
+    branches: [main]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  retarget:
+    name: Retarget to dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Retarget the PR to dev and comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD: ${{ github.event.pull_request.head.ref }}
+        run: |
+          # A dev -> main PR cannot be retargeted (base would equal head);
+          # explain and leave it to its unmergeable fate.
+          if [ "$HEAD" = "dev" ]; then
+            gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" \
+              --body ":robot: PRs against \`main\` are not accepted. \`main\` is the stable release channel and is only fast-forwarded by the release workflow when a release PR is merged into \`dev\`."
+            exit 0
+          fi
+          gh pr edit "$PR" --repo "$GITHUB_REPOSITORY" --base dev
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" \
+            --body ":robot: Retargeted this PR from \`main\` to \`dev\`: all merges must go to \`dev\`. \`main\` is the stable release channel and is only fast-forwarded by the release workflow."
