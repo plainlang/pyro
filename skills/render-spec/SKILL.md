@@ -14,6 +14,8 @@ metadata:
 
 When starting each step or substep, report with a message "Starting Step <Step_ID>: <Description>".
 
+Do every step yourself. Never hand any step to a subagent, Agent/Task tool or workflow. Module count or spec size are not exceptions.
+
 # Step 0: Python interpreter and version check
 
 `<skill_folder>` is the absolute path of the directory holding this `SKILL.md`. Resolve it now and reuse it everywhere in this skill where `<skill_folder>` is used:
@@ -89,6 +91,8 @@ Report with a message showing the `dependencies.md`.
 
 
 ## Step 4: Rendering
+
+Render every module yourself - never delegate any module to a subagent, Agent/Task tool or workflow.
 
 Load the :RenderPlan: and for every module follow precisely the steps:
 
