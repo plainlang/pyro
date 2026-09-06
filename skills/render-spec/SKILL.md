@@ -173,6 +173,7 @@ When all 4.x steps are done, continue with rendering the next module until no mo
 When all modules are rendered do:
 - copy all of the files in the `plain_modules/<TargetModule>` folder to the `./dist` folder:
   `<python> "<skill_folder>/scripts/copy_folder.py" plain_modules/<TargetModule> dist`
+- Smoke test from `./dist` as cwd, clean environment invoking the real entry point. If it fails, go back to the implementation (step 4.2), debug and fix it in the code. Never fix it via environment or paths.
 - prepare a short report on the :plainImplementationCode: and :ConformanceTests:
 - present commands to run tests (unit and/or conformance tests)
 - present the command to run the rendered <TargetModule>
