@@ -99,9 +99,11 @@ Load the :RenderPlan: and for every module follow precisely the next steps. The 
 ### Step 4.0: Folder preparation
 Report with a message "Step 4.0: Folder preparation of <module>".
 
-Create module's conformance tests folder `conf_tests/<module>`.
+Create folders:
+* module's conformance tests folder `conf_tests/<module>`
+* module's implementation code folder `plain_modules/<module>`.
 
-Create module's implementation code folder `plain_modules/<module>`.
+`plain_modules/<module>` is a standalone self-contained snapshot of the product. All paths the spec mentions are relative to it. Previously rendered modules are copied into it; reference their code by its location inside the current module folder, never via plain_modules/, sibling folders, .., or search-path variables/aliases (PYTHONPATH, NODE_PATH, LOADPATH, etc.). 
 
 If there's previous rendered module, copy its complete contents to the current module's folder:
 `<python> "<skill_folder>/scripts/copy_folder.py" plain_modules/<previous_module> plain_modules/<module>`
