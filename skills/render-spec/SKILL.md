@@ -94,7 +94,7 @@ Report with a message showing the `dependencies.md`.
 
 Render every module yourself - never delegate any module to a subagent, Agent/Task tool or workflow.
 
-Load the :RenderPlan: and for every module follow precisely the steps:
+Load the :RenderPlan: and for every module follow precisely the next steps. The run is unattended. Never pause to ask about scope, duration or batching. Proceed through every module in the render plan.
 
 ### Step 4.0: Folder preparation
 Report with a message "Step 4.0: Folder preparation of <module>".
