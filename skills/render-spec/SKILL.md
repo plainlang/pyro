@@ -14,6 +14,8 @@ metadata:
 
 When starting each step or substep, report with a message "Starting Step <Step_ID>: <Description>".
 
+Do every step yourself. Never hand any step to a subagent, Agent/Task tool or workflow. Module count or spec size are not exceptions.
+
 # Step 0: Python interpreter and version check
 
 `<skill_folder>` is the absolute path of the directory holding this `SKILL.md`. Resolve it now and reuse it everywhere in this skill where `<skill_folder>` is used:
@@ -90,14 +92,18 @@ Report with a message showing the `dependencies.md`.
 
 ## Step 4: Rendering
 
-Load the :RenderPlan: and for every module follow precisely the steps:
+Render every module yourself - never delegate any module to a subagent, Agent/Task tool or workflow.
+
+Load the :RenderPlan: and for every module follow precisely the next steps. The run is unattended. Never pause to ask about scope, duration or batching. Proceed through every module in the render plan.
 
 ### Step 4.0: Folder preparation
 Report with a message "Step 4.0: Folder preparation of <module>".
 
-Create module's conformance tests folder `conf_tests/<module>`.
+Create folders:
+* module's conformance tests folder `conf_tests/<module>`
+* module's implementation code folder `plain_modules/<module>`.
 
-Create module's implementation code folder `plain_modules/<module>`.
+`plain_modules/<module>` is a standalone self-contained snapshot of the product. All paths the spec mentions are relative to it. Previously rendered modules are copied into it; reference their code by its location inside the current module folder, never via plain_modules/, sibling folders, .., or search-path variables/aliases (PYTHONPATH, NODE_PATH, LOADPATH, etc.). 
 
 If there's previous rendered module, copy its complete contents to the current module's folder:
 `<python> "<skill_folder>/scripts/copy_folder.py" plain_modules/<previous_module> plain_modules/<module>`
@@ -169,6 +175,7 @@ When all 4.x steps are done, continue with rendering the next module until no mo
 When all modules are rendered do:
 - copy all of the files in the `plain_modules/<TargetModule>` folder to the `./dist` folder:
   `<python> "<skill_folder>/scripts/copy_folder.py" plain_modules/<TargetModule> dist`
+- Smoke test from `./dist` as cwd, clean environment invoking the real entry point. If it fails, go back to the implementation (step 4.2), debug and fix it in the code. Never fix it via environment or paths.
 - prepare a short report on the :plainImplementationCode: and :ConformanceTests:
 - present commands to run tests (unit and/or conformance tests)
 - present the command to run the rendered <TargetModule>
