@@ -4,8 +4,8 @@ description: >-
   Renders a .plain specification module into working, tested code. Use when
   asked to render, build, or implement a .plain spec file or module: resolves
   and renders its required/imported modules in dependency order, producing
-  implementation code in plain_modules/, conformance tests in conf_tests/,
-  and the target module's output in dist/.
+  implementation code in plain_module/code/, conformance tests in
+  plain_module/tests/, and the target module's output in dist/.
 metadata:
   version: "0.2.0"
 ---
@@ -46,9 +46,8 @@ Inputs artifacts are:
 
 Generated artifacts are:
 * :RenderPlan: is a table listing all the modules for rendering and current render state. :RenderPlan: lives in `./render-plan.md`.
-* :plainImplementationCode: lives under  `./plain_modules` and follow `./plain_modules/<module>` folder structure.
-* :plainOutputCode: is the :plainImplementationCode: of the <TargetModule>.
-* :ConformanceTests: are living under `./conf_tests` and follow `./conf_tests/<module>` folder structure.
+* :plainImplementationCode: lives under `./plain_module/code`. Every module is rendered into this same folder, each building on top of the previously rendered ones.
+* :ConformanceTests: are living under `./plain_module/tests`.
 
 ### Available tools and paths
 
@@ -94,17 +93,9 @@ Report with a message showing the `dependencies.md`.
 
 Render every module yourself - never delegate any module to a subagent, Agent/Task tool or workflow.
 
+Before rendering the first module, create the folders `plain_module/code` and `plain_module/tests` (skip any that already exist).
+
 Load the :RenderPlan: and for every module follow precisely the steps:
-
-### Step 4.0: Folder preparation
-Report with a message "Step 4.0: Folder preparation of <module>".
-
-Create module's conformance tests folder `conf_tests/<module>`.
-
-Create module's implementation code folder `plain_modules/<module>`.
-
-If there's previous rendered module, copy its complete contents to the current module's folder:
-`<python> "<skill_folder>/scripts/copy_folder.py" plain_modules/<previous_module> plain_modules/<module>`
 
 ### Step 4.1: Specs, reqs, test scenarios
 Report with a message "Step 4.1: Loading specs, writing reqs and test scenarios for: <module> + <required-or-imported-modules>".
@@ -113,57 +104,48 @@ Run the command with helper script, where <specs> are the module's spec followed
 `<python> "<skill_folder>/scripts/plain_sections.py" all <specs>`
 The output of this command are all the necessary specs for succesfully rendering this module.
 
-Write exhaustive conformance test scenarios for every :plainFunctionality: of the <module>'s spec into `conf_tests/<module>/scenarios.md`.
+Write exhaustive conformance test scenarios for every :plainFunctionality: of the <module>'s spec into `plain_module/tests/scenarios-<module>.md`.
 * Scenarios should exhaustively test every :plainFunctionality: and should include :AcceptanceTests:.
 * Get the <module>'s :AcceptanceTests: with `<python> "<skill_folder>/scripts/plain_sections.py" acc-tests <module spec>` and cover every one of them.
 
 Write the lists of requirements using the helper script, where <specs> are module's spec plus the specs of its imported modules:
-* impl. reqs: `<python> "<skill_folder>/scripts/plain_sections.py" impl-reqs <specs> --output plain_modules/<module>/impl-reqs.md`
-* test reqs: `<python> "<skill_folder>/scripts/plain_sections.py" test-reqs <specs> --output plain_modules/<module>/test-reqs.md`
+* impl. reqs: `<python> "<skill_folder>/scripts/plain_sections.py" impl-reqs <specs> --output plain_module/tests/impl-reqs.md`
+* test reqs: `<python> "<skill_folder>/scripts/plain_sections.py" test-reqs <specs> --output plain_module/tests/test-reqs.md`
 Both lists hold the requirements verbatim - never paraphrase, reorder or drop any of them.
   
 ### Step 4.2: Implement code and tests
 Report with a message "Step 4.2: Implementation of <module>".
 
-All the implementation code must be put in a self-contained `plain_modules/<module>` folder. NOTHING OUTSIDE OF THIS FOLDER can be touched during this step 4.2.
+All the implementation code must be put in the self-contained `plain_module/code` folder. Nothing outside of `plain_module` folder can be touched during this step.
 
-When referencing already rendered modules, ALWAYS REFER TO THEM RELATIVE FROM `plain_modules/<module>` folder - never include `plain_modules/<module>` in the import or require path.
-
-Implement all :plainFunctionality: of <module> specs while respecting all the requirements in `plain_modules/<module>/impl-reqs.md`.
+Implement all :plainFunctionality: of <module> specs while respecting all the requirements written in `plain_module/tests/impl-reqs.md`.
 
 Implement :UnitTests:.
 
 Implement :ConformanceTests: covering all test scenarios:
-* Read all test scenarios from `conf_tests/<module>/scenarios.md`.
-* Read test requirements in `plain_modules/<module>/test-reqs.md`.
-* Implement the conformance tests covering all test scenarios and respecting test requirements into the `conf_tests/<module>` folder.
+* Read all test scenarios from `plain_module/tests/scenarios-<module>.md`.
+* Read test requirements in `plain_module/tests/test-reqs.md`.
+* Implement the conformance tests covering all test scenarios and respecting test requirements into the `plain_module/tests` folder.
 
 ### Step 4.3: Tests verification
 Report with a message "#Step 4.3: Tests verification of <module>".
 
 If any tests are failing, go back to the implementation step (4.2), debug it and fix implementation code:
-* Run and verify <module>'s :ConformanceTests: are passing.
-* Run and verify <module>'s :UnitTests: are passing.
+* Run and verify all :ConformanceTests: are passing.
+* Run and verify all :UnitTests: are passing.
 
 ### Step 4.4: Reqs verification
 Report with a message "Step 4.4: Reqs verification of <module>".
 
-Read the list `plain_modules/<module>/impl-reqs.md` and for every item:
+Read the list `plain_module/tests/impl-reqs.md` and for every item:
 * Review if the implementation respects it.
 * Add checkbox with checked/unchecked status to the item.
 
-Read the list `plain_modules/<module>/test-reqs.md` and for every item:
+Read the list `plain_module/tests/test-reqs.md` and for every item:
 * Review if the conformance tests respect it.
 * Add checkbox with checked/unchecked status to the item.
 
 IMPORTANT: if any requirement list item is not passing, go back to the implementation (step 4.2), debug and fix it in the code.
-
-### Step 4.5: Module folder cleanup
-Report with a message "Step 4.5: Module folder cleanup".
-
-Remove any temporary files inside `plain_modules/<module>` folder:
-* `test-reqs.md` and `impl-reqs.md`.
-* remove installed dependency artifacts (e.g. `node_modules/`, `.venv/`, `__pycache__/`, vendored packages), but keep the dependency manifests and lock files so dependencies can be reinstalled later.
 
 
 When all 4.x steps are done, continue with rendering the next module until no more modules are left.
@@ -171,8 +153,9 @@ When all 4.x steps are done, continue with rendering the next module until no mo
 ## Step 5: Finalize and report
 
 When all modules are rendered do:
-- copy all of the files in the `plain_modules/<TargetModule>` folder to the `./dist` folder:
-  `<python> "<skill_folder>/scripts/copy_folder.py" plain_modules/<TargetModule> dist`
+- remove installed dependency artifacts (e.g. `node_modules/`, `.venv/`, `__pycache__/`, vendored packages) in `plain_module/code`, but keep the dependency manifests and lock files so dependencies can be reinstalled later.
+- copy all of the files in the `plain_module/code` folder to the `./dist` folder:
+  `<python> "<skill_folder>/scripts/copy_folder.py" plain_module/code dist`
 - prepare a short report on the :plainImplementationCode: and :ConformanceTests:
 - present commands to run tests (unit and/or conformance tests)
 - present the command to run the rendered <TargetModule>
