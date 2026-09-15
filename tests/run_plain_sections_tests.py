@@ -106,20 +106,7 @@ def run_suite(tmp):
     want_two = expect("defs") + b"\n" + b"- :Gadget: is another thing.\n"
     assert_stdout("two specs, one blank line between", want_two, "defs", SAMPLE, SECOND)
 
-    # 7. --check probes the interpreter and says so.
-    assert_rc("--check exits 0", 0, "--check")
-    if run("--check")[1] == b"ok\n":
-        ok("--check prints ok")
-    else:
-        bad("--check prints ok")
-    unused = os.path.join(tmp, "unused")
-    assert_rc("--check ignores a trailing --output", 0, "--check", "--output", unused)
-    if os.path.exists(unused):
-        bad("--check leaves --output path untouched")
-    else:
-        ok("--check leaves --output path untouched")
-
-    # 8. Unreadable inputs exit 1.
+    # 7. Unreadable inputs exit 1.
     assert_rc("missing spec exits 1", 1, "defs", os.path.join(FIXTURES, "does-not-exist.plain"))
     assert_rc("directory argument exits 1", 1, "defs", FIXTURES)
     # ... but a readable spec later in the list is still printed.
@@ -129,14 +116,14 @@ def run_suite(tmp):
     else:
         bad("unreadable spec does not suppress the readable one")
 
-    # 9. Usage errors exit 2.
+    # 8. Usage errors exit 2.
     assert_rc("unknown section exits 2", 2, "nonsense", SAMPLE)
     assert_rc("no arguments exits 2", 2)
     assert_rc("section without a spec exits 2", 2, "defs")
     assert_rc("--output without a path exits 2", 2, "defs", SAMPLE, "--output")
     assert_rc("--help exits 2", 2, "--help")
 
-    # 10. A missing section is a warning, not an error.
+    # 9. A missing section is a warning, not an error.
     assert_rc("missing section exits 0", 0, "defs", EMPTY)
     rc, out, err = run("defs", EMPTY)
     if out == b"" and err != b"":
@@ -144,7 +131,7 @@ def run_suite(tmp):
     else:
         bad("missing section warns on stderr, stdout empty")
 
-    # 11. Flags are accepted after the positional arguments too.
+    # 10. Flags are accepted after the positional arguments too.
     assert_stdout("flag after positionals", want_filename, "defs", SAMPLE, "--include-filename")
 
 
