@@ -2,7 +2,6 @@
 # Extract one section from .plain specs and print the bodies to stdout.
 #
 # Usage: plain_sections.py [--include-filename] [--output <path>] <section> <spec.plain> [spec.plain ...]
-#        plain_sections.py --check
 #
 # Sections (case-insensitive, `-` and `_` interchangeable):
 #   definitions          defs        :plainDefinitions:
@@ -20,10 +19,6 @@
 # callers never need shell redirection. Windows PowerShell 5.1 writes UTF-16LE for `>` and
 # `>>`, which corrupts files that later steps read back, so redirecting here rather than in
 # the calling shell keeps the output UTF-8/LF on every platform. Warnings stay on stderr.
-#
-# --check takes no other arguments: it verifies the interpreter is a usable Python 3, prints
-# "ok" and exits 0, so a caller can test-drive this script before relying on it. It returns
-# before the --output redirect, so --output is ignored with --check.
 #
 # Portability: the standard library only, Python 3.8+, no shell and no awk - so the same
 # command line works from sh, PowerShell and cmd alike. Everything is written as bytes to
@@ -50,7 +45,6 @@ if sys.version_info < (3, 8):
 PROG = os.path.basename(sys.argv[0])
 
 USAGE = """usage: %(prog)s [--include-filename] [--output <path>] <section> <spec.plain> [spec.plain ...]
-       %(prog)s --check
 
 sections (case-insensitive, - and _ interchangeable):
   definitions          defs       :plainDefinitions:
@@ -265,7 +259,6 @@ def parse_args(argv):
     """Options are recognized wherever they appear, including after the positionals."""
     show_path = False
     out = None
-    check_only = False
     positional = []
 
     args = list(argv)
@@ -273,8 +266,6 @@ def parse_args(argv):
         arg = args.pop(0)
         if arg == "--include-filename":
             show_path = True
-        elif arg == "--check":
-            check_only = True
         elif arg == "--output":
             if not args:
                 error("--output requires a path")
@@ -290,17 +281,11 @@ def parse_args(argv):
         else:
             positional.append(arg)
 
-    return show_path, out, check_only, positional
+    return show_path, out, positional
 
 
 def main(argv):
-    show_path, out, check_only, positional = parse_args(argv)
-
-    # --check proves the interpreter is a usable Python 3; anything older already exited at
-    # the version guard above, so reaching here is the answer.
-    if check_only:
-        write_text(byte_sink(sys.stdout), "ok\n")
-        return 0
+    show_path, out, positional = parse_args(argv)
 
     if len(positional) < 2:
         usage()
