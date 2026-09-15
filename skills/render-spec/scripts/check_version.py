@@ -62,7 +62,7 @@ if sys.version_info < (3, 8):
 PROG = os.path.basename(sys.argv[0])
 
 LATEST_URL = "https://raw.githubusercontent.com/plainlang/pyro/main/pyproject.toml"
-FETCH_TIMEOUT = 10  # seconds
+FETCH_TIMEOUT = 3  # seconds
 SKILL_MD = os.path.normpath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, "SKILL.md")
 )
