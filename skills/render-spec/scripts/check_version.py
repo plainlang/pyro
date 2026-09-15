@@ -5,7 +5,6 @@
 # Usage: check_version.py current [--skill-md <path>]
 #        check_version.py latest  [--url <url>]
 #        check_version.py check   [--skill-md <path>] [--url <url>]
-#        check_version.py --check
 #
 # current  prints the version this copy of the skill ships with, read from
 #          the `metadata: version:` field of the SKILL.md next to this script.
@@ -31,10 +30,6 @@
 # --skill-md <path> and --url <url> (also the = spellings) override where the
 # current and latest versions are read from; the tests use them with fixture
 # files and file:// URLs.
-#
-# --check takes no other arguments: it verifies the interpreter is a usable
-# Python 3, prints "ok" and exits 0, so a caller can test-drive this script
-# before relying on it.
 #
 # Versions are `X.Y.Z` with an optional `-rc.N` prerelease, and a release
 # outranks its own release candidates: 0.1.0 < 0.2.0-rc.1 < 0.2.0.
@@ -72,7 +67,6 @@ VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:-rc\.(\d+))?$")
 USAGE = """usage: %(prog)s current [--skill-md <path>]
        %(prog)s latest  [--url <url>]
        %(prog)s check   [--skill-md <path>] [--url <url>]
-       %(prog)s --check
 
 current  print this skill's own version (from SKILL.md metadata)
 latest   print the latest published stable version (pyproject.toml on main)
@@ -175,7 +169,7 @@ def parse_args(argv):
                     usage_error("%s needs a value" % name)
                 value = argv[index]
             options[name] = value
-        elif name in ("current", "latest", "check", "--check") and not equals:
+        elif name in ("current", "latest", "check") and not equals:
             if command is not None:
                 usage_error("only one command allowed, got %r after %r" % (name, command))
             command = name
@@ -194,10 +188,6 @@ def usage_error(message):
 
 def main(argv):
     command, skill_md, url = parse_args(argv)
-
-    if command == "--check":
-        emit("ok\n")
-        return 0
 
     if command == "latest":
         latest = fetch_latest(url)

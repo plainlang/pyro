@@ -82,10 +82,7 @@ def run_suite(tmp):
     url_garbage = write_pyproject(tmp, "py-garbage.toml", "not.a.version")
     url_missing = pathlib.Path(os.path.join(tmp, "no-such-file.toml")).as_uri()
 
-    # 1. Interpreter probe.
-    assert_stdout("--check prints ok", b"ok\n", "--check")
-
-    # 2. current: fixture and the real SKILL.md this repo ships.
+    # 1. current: fixture and the real SKILL.md this repo ships.
     assert_stdout("current from fixture", b"0.1.0\n", "current", "--skill-md", skill_010)
     assert_stdout("current, = spelling", b"0.1.0\n", "current", "--skill-md=" + skill_010)
     rc, out, err = run("current")
@@ -97,13 +94,13 @@ def run_suite(tmp):
             "exit %d, stdout %r, stderr %r" % (rc, out, err),
         )
 
-    # 3. latest: scoped to [project], loud when unavailable.
+    # 2. latest: scoped to [project], loud when unavailable.
     assert_stdout("latest from fixture", b"0.2.0\n", "latest", "--url", url_020)
     assert_rc("latest with unreachable url exits 1", 1, "latest", "--url", url_missing)
     assert_rc("latest without [project] exits 1", 1, "latest", "--url", url_no_project)
     assert_rc("latest with unparseable version exits 1", 1, "latest", "--url", url_garbage)
 
-    # 4. check: every status.
+    # 3. check: every status.
     assert_stdout(
         "check update-available",
         check_wants("0.1.0", "0.2.0", "update-available"),
@@ -125,7 +122,7 @@ def run_suite(tmp):
         "check", "--skill-md", skill_rc, "--url", url_020,
     )
 
-    # 5. check degrades softly: still exit 0, status unknown.
+    # 4. check degrades softly: still exit 0, status unknown.
     assert_stdout(
         "check with unreachable url degrades to unknown",
         check_wants("0.1.0", "unknown", "unknown"),
@@ -142,7 +139,7 @@ def run_suite(tmp):
         "check", "--skill-md", skill_010, "--url", url_garbage,
     )
 
-    # 6. A broken own version is a hard error.
+    # 5. A broken own version is a hard error.
     assert_rc(
         "missing SKILL.md exits 1",
         1,
@@ -155,12 +152,12 @@ def run_suite(tmp):
         "check", "--skill-md", no_version, "--url", url_010,
     )
 
-    # 7. Usage errors.
+    # 6. Usage errors.
     assert_rc("no command exits 2", 2)
     assert_rc("unknown command exits 2", 2, "frobnicate")
     assert_rc("two commands exit 2", 2, "check", "latest")
     assert_rc("--skill-md without value exits 2", 2, "current", "--skill-md")
-    assert_rc("--check with a command exits 2", 2, "check", "--check")
+    assert_rc("unknown flag exits 2", 2, "check", "--frobnicate")
 
 
 if __name__ == "__main__":
