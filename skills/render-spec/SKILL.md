@@ -22,16 +22,16 @@ Do every step yourself. Never hand any step to a subagent, Agent/Task tool or wo
   * On Claude Code it is `${CLAUDE_SKILL_DIR}`; on other agents derive it from the location this skill was loaded from.
   * Never reach a file inside this skill by a relative path.
 
-`<python>` is required Python 3.8 or newer. Resolve it now and reuse it everywhere in this skill where `<python>` is used. Try these in order, keep the first that prints `ok`:
-* `py -3 "<skill_folder>/scripts/check_version.py" --check`
-* `python3 "<skill_folder>/scripts/check_version.py" --check`
-* `python "<skill_folder>/scripts/check_version.py" --check`
+`<python>` is required Python 3.8 or newer. Resolve it now and reuse it everywhere in this skill where `<python>` is used. Run all three of these as independent tool calls in one single turn, in parallel - do not run them one after another:
+* `python3 "<skill_folder>/scripts/check_version.py" check`
+* `py -3 "<skill_folder>/scripts/check_version.py" check`
+* `python "<skill_folder>/scripts/check_version.py" check`
 
-Report the Python tool you settled on. If none prints `ok`, Python is a missing dependency: abort the rendering and report it.
+Among the commands whose output contains a `current:` line, keep the first one in the order listed above: its interpreter is `<python>`. Report the Python tool you settled on. If no command prints a `current:` line, Python is a missing dependency: abort the rendering and report it.
 
-Run `<python> "<skill_folder>/scripts/check_version.py" check` and report with a message "Running pyro: <current>", where <current> and the other values are read from the command's output.
+From that same command's output report with a message "Running pyro: <current>".
 * If the output shows `status: update-available`, warn with a message: "A newer pyro release <latest> is available (this is <current>)".
-* On any other status, or if the command fails, say nothing about updates and continue.
+* On any other status, say nothing about updates and continue.
 
 # Step 1: Introduction, inputs and outputs
 
