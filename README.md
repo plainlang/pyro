@@ -1,28 +1,30 @@
 # Pyro
 
-Pyro is an open-source renderer for ***plain specifications. It's packaged as an agentic skill
-that renders a `.plain` spec into working and tested code.
+Pyro is an open-source renderer for ***plain specifications. It's packaged as an
+agentic skill that renders a `.plain` spec into working and tested code.
 
 Invoke it from your agent with:
 
 ```
-/pyro:render-spec <plain-spec-filename>   # Claude Code plugin install
-/render-spec <plain-spec-filename>        # npx skills install or manual copy
+/pyro:render-spec <plain-spec-filename>   # if installed as Claude Code plugin
+/render-spec <plain-spec-filename>        # if installed via npx skills or manual copy
 ```
 
 The skill resolves the modules the target spec requires or imports, renders them
 in dependency order, and writes:
-* intermediate implementation code to `plain_modules/`
-* conformance tests to `conf_tests/`
+* intermediate implementation code to `plain_module/code/`
+* conformance tests to `plain_module/tests/`
 * the target module's output to `dist/`
 
 ## Installation
 
 ### Claude Code plugin
 
-```
-/plugin marketplace add plainlang/pyro
-/plugin install pyro@pyro
+Run these two commands in your terminal:
+
+```bash
+claude plugin marketplace add plainlang/pyro
+claude plugin install pyro@pyro
 ```
 
 Plugin skills are namespaced by their plugin, so invoke this one as
@@ -50,8 +52,7 @@ claude plugin marketplace update pyro
 claude plugin update pyro
 ```
 
-Both also live in the in-session `/plugin` menu. A restart is needed either way
-before the new version loads.
+A restart is needed either way before the new version loads.
 
 ### Installation with npx skills
 
@@ -59,7 +60,7 @@ If you have Node available, install the skill with the `npx skills` tool:
 
 ```bash
 cd project
-npx skills add https://github.com/plainlang/pyro --agent claude-code
+npx skills add https://github.com/plainlang/pyro --agent codex
 ```
 
 This copies the skill straight into your agent's skills folder, so it is not
