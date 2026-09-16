@@ -15,10 +15,11 @@
 # section's own marker so the sections stay distinguishable. `>` comment lines are always
 # dropped. With --include-filename each body is preceded by a "## <path>" heading.
 #
-# --output <path> (or --output=<path>) writes the result to <path> instead of stdout, so
-# callers never need shell redirection. Windows PowerShell 5.1 writes UTF-16LE for `>` and
-# `>>`, which corrupts files that later steps read back, so redirecting here rather than in
-# the calling shell keeps the output UTF-8/LF on every platform. Warnings stay on stderr.
+# --output <path> (or --output=<path>) writes the result to <path> instead of stdout, creating
+# missing parent folders, so callers never need shell redirection. Windows PowerShell 5.1
+# writes UTF-16LE for `>` and `>>`, which corrupts files that later steps read back, so
+# redirecting here rather than in the calling shell keeps the output UTF-8/LF on every
+# platform. Warnings stay on stderr.
 #
 # Portability: the standard library only, Python 3.8+, no shell and no awk - so the same
 # command line works from sh, PowerShell and cmd alike. Everything is written as bytes to
@@ -303,6 +304,9 @@ def main(argv):
         handle = None
     else:
         try:
+            parent = os.path.dirname(out)
+            if parent and not os.path.isdir(parent):
+                os.makedirs(parent)
             handle = open(out, "wb")
         except (IOError, OSError):
             error("cannot write %s" % out)

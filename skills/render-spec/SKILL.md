@@ -45,9 +45,10 @@ Inputs artifacts are:
 * specs of <TargetModule> and the modules it requires or imports, including referenced files inside the specs.
 
 Generated artifacts are:
-* :RenderPlan: is a table listing all the modules for rendering and current render state. :RenderPlan: lives in `./render-plan.md`.
+* :RenderPlan: is a table listing all the modules for rendering and current render state. :RenderPlan: lives in `./.pyro/render-plan.md`.
 * :plainImplementationCode: lives under `./plain_module/code`. Every module is rendered into this same folder, each building on top of the previously rendered ones.
 * :ConformanceTests: are living under `./plain_module/tests`.
+* Internal working files (dependencies, per-module scenarios and requirements) live under `./.pyro`.
 
 ### Available tools and paths
 
@@ -84,16 +85,16 @@ Gather all :plainImplementationReqs: and :plainTestReqs: from all specs of the m
 * `<python> "<skill_folder>/scripts/plain_sections.py" --include-filename impl-reqs <all specs to be rendered>`
 * `<python> "<skill_folder>/scripts/plain_sections.py" --include-filename test-reqs <all specs to be rendered>`
 
-Write a list of all the required dependencies for implementation and for tests into `dependencies.md` file. Verify all the all the dependendencies are present and update the list.
+Write a list of all the required dependencies for implementation and for tests into `.pyro/dependencies.md` file. Verify all the all the dependendencies are present and update the list.
 
-Report with a message showing the `dependencies.md`.
+Report with a message showing the `.pyro/dependencies.md`.
 
 
 ## Step 4: Rendering
 
 Render every module yourself - never delegate any module to a subagent, Agent/Task tool or workflow.
 
-Before rendering the first module, create the folders `plain_module/code` and `plain_module/tests` (skip any that already exist).
+Before rendering the first module, create the folders `plain_module/code`, `plain_module/tests` and `.pyro` (skip any that already exist).
 
 Load the :RenderPlan: and for every module follow precisely the steps:
 
@@ -104,27 +105,27 @@ Run the command with helper script, where <specs> are the module's spec followed
 `<python> "<skill_folder>/scripts/plain_sections.py" all <specs>`
 The output of this command are all the necessary specs for succesfully rendering this module.
 
-Write exhaustive conformance test scenarios for every :plainFunctionality: of the <module>'s spec into `plain_module/tests/scenarios-<module>.md`.
+Write exhaustive conformance test scenarios for every :plainFunctionality: of the <module>'s spec into `.pyro/<module>/scenarios.md`.
 * Scenarios should exhaustively test every :plainFunctionality: and should include :AcceptanceTests:.
 * Get the <module>'s :AcceptanceTests: with `<python> "<skill_folder>/scripts/plain_sections.py" acc-tests <module spec>` and cover every one of them.
 
 Write the lists of requirements using the helper script, where <specs> are module's spec plus the specs of its imported modules:
-* impl. reqs: `<python> "<skill_folder>/scripts/plain_sections.py" impl-reqs <specs> --output plain_module/tests/impl-reqs.md`
-* test reqs: `<python> "<skill_folder>/scripts/plain_sections.py" test-reqs <specs> --output plain_module/tests/test-reqs.md`
+* impl. reqs: `<python> "<skill_folder>/scripts/plain_sections.py" impl-reqs <specs> --output .pyro/<module>/impl-reqs.md`
+* test reqs: `<python> "<skill_folder>/scripts/plain_sections.py" test-reqs <specs> --output .pyro/<module>/test-reqs.md`
 Both lists hold the requirements verbatim - never paraphrase, reorder or drop any of them.
   
 ### Step 4.2: Implement code and tests
 Report with a message "Step 4.2: Implementation of <module>".
 
-All the implementation code must be put in the self-contained `plain_module/code` folder. Nothing outside of `plain_module` folder can be touched during this step.
+All the implementation code must be put in the self-contained `plain_module/code` folder. Nothing outside of `plain_module` and `.pyro` folders can be touched during this step.
 
-Implement all :plainFunctionality: of <module> specs while respecting all the requirements written in `plain_module/tests/impl-reqs.md`.
+Implement all :plainFunctionality: of <module> specs while respecting all the requirements written in `.pyro/<module>/impl-reqs.md`.
 
 Implement :UnitTests:.
 
 Implement :ConformanceTests: covering all test scenarios:
-* Read all test scenarios from `plain_module/tests/scenarios-<module>.md`.
-* Read test requirements in `plain_module/tests/test-reqs.md`.
+* Read all test scenarios from `.pyro/<module>/scenarios.md`.
+* Read test requirements in `.pyro/<module>/test-reqs.md`.
 * Implement the conformance tests covering all test scenarios and respecting test requirements into the `plain_module/tests` folder.
 
 ### Step 4.3: Tests verification
@@ -137,11 +138,11 @@ If any tests are failing, go back to the implementation step (4.2), debug it and
 ### Step 4.4: Reqs verification
 Report with a message "Step 4.4: Reqs verification of <module>".
 
-Read the list `plain_module/tests/impl-reqs.md` and for every item:
+Read the list `.pyro/<module>/impl-reqs.md` and for every item:
 * Review if the implementation respects it.
 * Add checkbox with checked/unchecked status to the item.
 
-Read the list `plain_module/tests/test-reqs.md` and for every item:
+Read the list `.pyro/<module>/test-reqs.md` and for every item:
 * Review if the conformance tests respect it.
 * Add checkbox with checked/unchecked status to the item.
 

@@ -15,6 +15,7 @@ in dependency order, and writes:
 * intermediate implementation code to `plain_module/code/`
 * conformance tests to `plain_module/tests/`
 * the target module's output to `dist/`
+* internal working files (render plan, dependencies, scenarios, requirement lists) to `.pyro/`
 
 ## Installation
 
