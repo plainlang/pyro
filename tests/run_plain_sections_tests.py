@@ -81,8 +81,14 @@ def run_suite(tmp):
         ok("--output=<path> matches stdout byte for byte")
     else:
         bad("--output=<path> matches stdout byte for byte")
+    via_nested = os.path.join(tmp, "no", "such", "dir", "x")
+    assert_rc("--output creates missing parent folders", 0, "--output", via_nested, "all", SAMPLE)
+    if read(via_nested) == via_stdout:
+        ok("--output into new folders matches stdout byte for byte")
+    else:
+        bad("--output into new folders matches stdout byte for byte")
     assert_rc("--output to unwritable path exits 1", 1,
-              "--output", os.path.join(tmp, "no", "such", "dir", "x"), "defs", SAMPLE)
+              "--output", os.path.join(via_nested, "y"), "defs", SAMPLE)
 
     # 5b. The written file is UTF-8 with LF endings on every platform. This is the reason
     # --output exists: PowerShell's own `>` would hand later steps UTF-16LE with CRLF.

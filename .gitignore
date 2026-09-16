@@ -7,3 +7,4 @@
 **/conformance_tests/
 **/dist
 **/__pycache__/
+**/.pyro/
