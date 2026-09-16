@@ -7,7 +7,7 @@ description: >-
   implementation code in plain_module/code/, conformance tests in
   plain_module/tests/, and the target module's output in dist/.
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # Skill instructions
