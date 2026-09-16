@@ -8,6 +8,40 @@ entries go directly below the marker.
 
 <!-- version list -->
 
+## v0.4.0 (2026-09-16)
+
+### Bug Fixes
+
+- Probe interpreters in parallel through check_version check
+  ([`a091f64`](https://github.com/plainlang/pyro/commit/a091f6402a5a7ce76512b28448dfd222d1c0f626))
+
+### Documentation
+
+- Install clarification and fixes inside README
+  ([`7c566f3`](https://github.com/plainlang/pyro/commit/7c566f33f080057cafb631d3688411c005e7cc22))
+
+### Features
+
+- Move internal files to .pyro/<module>
+  ([`5f845b8`](https://github.com/plainlang/pyro/commit/5f845b8f18124e0508863d46ba7e3f58e73de0bf))
+
+### Performance Improvements
+
+- Probe python inter. sequentially, stop at the first hit
+  ([`26902e5`](https://github.com/plainlang/pyro/commit/26902e538110b7c9075ac96112b33bb04b72b65d))
+
+- Shorten the latest-version fetch timeout to 3 seconds
+  ([`93b940a`](https://github.com/plainlang/pyro/commit/93b940a2bdb2b6eed01681176168e27477dab014))
+
+### Refactoring
+
+- Remove --check command from check_version
+  ([`1e4eba6`](https://github.com/plainlang/pyro/commit/1e4eba661cffff8dcbe4c4956c49be2fdc744eaa))
+
+- Remove --check command from plain_sections
+  ([`c27dbb7`](https://github.com/plainlang/pyro/commit/c27dbb738d070b1dc6af7d577f19fc2e8a2d6b06))
+
+
 ## v0.3.0 (2026-09-07)
 
 ### Continuous Integration
