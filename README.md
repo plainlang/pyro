@@ -84,9 +84,9 @@ Update it by pulling this repo and copying the folder again.
 ## Requirements
 
 Rendering needs **Python 3.8 or newer** on the machine — nothing else, no
-third-party packages. The skill finds the interpreter itself, trying `py -3`,
-`python3`, and `python` in that order, and stops with a clear message if none of
-them works.
+third-party packages. The skill finds the interpreter itself, trying `python3`,
+`py -3`, and `python` in that order, stopping at the first that works, and aborts
+with a clear message if none of them does.
 
 ## Tests
 

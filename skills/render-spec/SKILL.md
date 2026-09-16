@@ -22,12 +22,12 @@ Do every step yourself. Never hand any step to a subagent, Agent/Task tool or wo
   * On Claude Code it is `${CLAUDE_SKILL_DIR}`; on other agents derive it from the location this skill was loaded from.
   * Never reach a file inside this skill by a relative path.
 
-`<python>` is required Python 3.8 or newer. Resolve it now and reuse it everywhere in this skill where `<python>` is used. Run all three of these as independent tool calls in one single turn, in parallel - do not run them one after another:
-* `python3 "<skill_folder>/scripts/check_version.py" check`
-* `py -3 "<skill_folder>/scripts/check_version.py" check`
-* `python "<skill_folder>/scripts/check_version.py" check`
+`<python>` is required Python 3.8 or newer. Resolve it now and reuse it everywhere in this skill where `<python>` is used. Try these candidates one at a time, in this order, and stop at the first one whose output contains a `current:` line - its interpreter is `<python>`. Do not run the remaining candidates once one has succeeded, and do not run them in parallel:
+1. `python3 "<skill_folder>/scripts/check_version.py" check`
+2. `py -3 "<skill_folder>/scripts/check_version.py" check`
+3. `python "<skill_folder>/scripts/check_version.py" check`
 
-Among the commands whose output contains a `current:` line, keep the first one in the order listed above: its interpreter is `<python>`. Report the Python tool you settled on. If no command prints a `current:` line, Python is a missing dependency: abort the rendering and report it.
+Report the Python tool you settled on. If none of the three prints a `current:` line, Python is a missing dependency: abort the rendering and report it.
 
 From that same command's output report with a message "Running pyro: <current>".
 * If the output shows `status: update-available`, warn with a message: "A newer pyro release <latest> is available (this is <current>)".
