@@ -112,11 +112,10 @@ Run the command with helper script, where <specs> are the module's spec followed
 `<python> "<skill_folder>/scripts/plain_sections.py" all <specs>`
 The output of this command are all the necessary specs for succesfully rendering this module.
 
-Collect the test scenarios of every :plainFunctionality: of the <module> into `.pyro/<module>/scenarios.md`:
-`<python> "<skill_folder>/scripts/test_scenarios.py" --output .pyro/<module>/scenarios.md <module spec>`
-* The scenarios come from the module's test plain files and from nowhere else. Never write, extend, split or invent a scenario, not even an obvious missing case.
-* If the script exits 1, the spec is in a syntax pyro no longer renders: abort the rendering and report the script's message.
-* The script warns about every :plainFunctionality: that has no test plain file, or whose test plain file holds no scenario. Repeat every warning to the user. Those functionalities are rendered without :ConformanceTests:.
+Run command to collect all the test scenarios of the <module>:
+`<python> "<skill_folder>/scripts/test_scenarios.py" <module.plain>`
+* If the script exits 1, abort the rendering and report its message.
+* Repeat every warning of the script to the user.
 
 Write the lists of requirements using the helper script, where <specs> are module's spec plus the specs of its imported modules:
 * impl. reqs: `<python> "<skill_folder>/scripts/plain_sections.py" impl-reqs <specs> --output .pyro/<module>/impl-reqs.md`
