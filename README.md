@@ -17,6 +17,13 @@ in dependency order, and writes:
 * the target module's output to `dist/`
 * internal working files (render plan, dependencies, scenarios, requirement lists) to `.pyro/`
 
+The tests come from the test plain files of the spec: one test per scenario, and
+no scenario of pyro's own. By convention a test plain file lives at
+`tests/<module>/<func-id>.plain` next to the spec, and it is bound to its
+functionality by its `module:` and `func_id:` frontmatter. A functionality with
+no test plain file, or one whose file holds no scenario, renders without
+conformance tests and pyro warns about it.
+
 ## Installation
 
 ### Claude Code plugin
