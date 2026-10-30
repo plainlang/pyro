@@ -4,11 +4,17 @@
 
 ## .plain File Structure
 
-A `.plain` file has a YAML frontmatter section followed by standardized sections (marked with `***section name***` headers):
+There are two kinds of `.plain` file. A **spec plain file** describes a module. A **test plain file** holds the test scenarios of one functionality of that module.
+
+A spec plain file has a YAML frontmatter section followed by standardized sections (marked with `***section name***` headers):
 - `***definitions***` — declares concepts used throughout the specification
 - `***implementation reqs***` — non-functional requirements about how the software should be built
 - `***test reqs***` — requirements for conformance testing
 - `***functional specs***` — describes what the software should do
+
+A test plain file has its own frontmatter and two sections, `***conformance tests***` and `***acceptance tests***`. See *Test Plain Files* below.
+
+Every section marker is at the start of its line. An indented `***...***` line is not a section.
 
 ## Concept Notation
 
@@ -29,8 +35,8 @@ Concepts must be defined in `***definitions***` before being referenced in other
 | `:Implementation:` | The system implementing `:plainFunctionality:` |
 | `:plainImplementationCode:` | The generated implementation code |
 | `:UnitTests:` | Auto-generated unit tests for individual functionalities (configured in `***implementation reqs***`) |
-| `:ConformanceTests:` | Auto-generated tests that verify implementation conforms to specs |
-| `:AcceptanceTest:` / `:AcceptanceTests:` | Tests that validate specific aspects of the implementation |
+| `:ConformanceTests:` | Tests generated from the `***conformance tests***` scenarios of a functionality |
+| `:AcceptanceTest:` / `:AcceptanceTests:` | Tests generated from the `***acceptance tests***` scenarios of a functionality |
 
 ## Definitions Section (`***definitions***`)
 
@@ -42,19 +48,59 @@ A free-form section for any instructions that steer code generation. Common uses
 
 ## Test Reqs Section (`***test reqs***`)
 
-Specifies requirements for conformance testing — test frameworks, execution methods, and testing constraints. It does not refer to unit tests, which are specified in the `***implementation reqs***` section.
+Specifies requirements for conformance testing — test frameworks, execution methods, and testing constraints. It says HOW `:ConformanceTests:` and `:AcceptanceTests:` are built and run; the scenarios in the test plain files say WHAT they check. It does not refer to unit tests, which are specified in the `***implementation reqs***` section.
 
 ## Functional Specs Section (`***functional specs***`)
 
-Describes what the software should do. Each bullet point is a single piece of functionality that will be implemented.
+Describes what the software should do. Each functionality is a `# <func-id>` heading followed by its body — free text that describes the behavior as prose, `- ` bullets, or any other shape. No body line starts with `# ` (that starts the next functionality) or with `***`.
+
+```plain
+***functional specs***
+
+# add-task
+A :User: can add a :Task:. Only valid :Task: items are added.
+
+# delete-task
+A :User: can delete a :Task:.
+```
+
+A func-id is lowercase letters, digits and hyphens (`add-task`, `export-csv-2`, `ctrl-d-exit`) and is unique within its module. It is an identity, not a label: a functionality keeps its func-id for as long as it exists, even when its text changes. The func-id names the functionality everywhere — in its test plain files, in the render plan, in logs, and in the names of the generated tests.
 
 Each functional spec must be limited in complexity. If a spec is too complex, the renderer responds with "Functional spec too complex!" and it must be broken down into smaller specs. Complexity is measured in lines of code - each spec should imply no more than 200 lines of code.
 
-Functional specs are in **sequential order** and rendered incrementally, one by one. When a spec is rendered, only **previous** functional specs are in the renderer's context — those earlier in the list, plus any from `requires` modules; later specs are invisible, so a spec can never reference or anticipate what comes after it. This ordering matters for incremental rendering and for detecting conflicts between specs.
+Functional specs are in **sequential order** and rendered incrementally, one by one. When a spec is rendered, only **previous** functional specs are in the renderer's context — those earlier in the list, plus any from `requires` modules; later specs are invisible, so a spec can never reference or anticipate what comes after it. The order of the headings is the render order; the func-id itself carries no order. This ordering matters for incremental rendering and for detecting conflicts between specs.
 
-## Acceptance Tests (`***acceptance tests***`)
+## Test Plain Files
 
-Nested under individual functional specs to specify how to verify correct implementation. They extend conformance tests.
+The test scenarios of a functionality live in a test plain file of its own. A spec plain file never holds a `***acceptance tests***` section, nested under a functional spec or at the top level.
+
+```plain
+---
+module: task-manager
+func_id: add-task
+---
+
+***conformance tests***
+
+# add-first-task
+A :User: adds a :Task: named "Buy milk" to an empty :TaskList:. :TaskList: then shows one :Task: named "Buy milk".
+
+***acceptance tests***
+
+# add-without-name
+A :User: adds a :Task: with an empty name. :App: rejects it and :TaskList: stays empty.
+```
+
+- The frontmatter has exactly two keys, both required: `module:` is the spec plain file's name without `.plain`, and `func_id:` is the func-id of the functionality the scenarios belong to.
+- Both sections are required and `***conformance tests***` comes first. Both may be empty — the minimal valid file is the frontmatter and the two markers.
+- `***conformance tests***` holds the scenarios of the **expected use** of the functionality: its main path, with valid parameters, the expected caller, and the data present. They gate the functionality: it is done only when every conformance scenario passes.
+- `***acceptance tests***` holds the scenarios of use that is **not expected**: invalid parameters, wrong or missing authentication, missing data. An acceptance scenario is rendered after the conformance tests of its functionality pass.
+- A scenario is a `# <scenario-id>` heading followed by free text that says what is done and what result is expected. A scenario-id has the same syntax as a func-id and is unique for its functionality.
+- Scenarios describe behavior through the observable interface (CLI, HTTP, files, UI). They never name a function, class or file of the implementation, and the generated test never reaches into the implementation's internals.
+
+By convention a test plain file lives at `tests/<module>/<func-id>.plain`, with `tests/` next to the spec plain file. The location is convention only: a test plain file is bound to its functionality by its frontmatter, not by its path. More than one file may bind to the same functionality, and their scenarios are merged.
+
+The scenarios in these files are the complete and only list of tests for the module. The renderer implements them and nothing else — it never invents a scenario, and it never extends one.
 
 ## YAML Frontmatter
 
