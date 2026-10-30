@@ -17,17 +17,11 @@
 
 ***functional specs***
 
-- Create a :Widget: from a name.
+# create-widget
+A :Widget: is created from a name.
 
-  ***acceptance tests***
+# list-widgets
+All :Widget: items in the :Registry: are listed.
 
-  - Creating a :Widget: named "a" yields a :Widget: with name "a".
-  - An empty name is rejected.
-
-- List all :Widget: in the :Registry:.
-
-  ***acceptance tests***
-
-  - An empty :Registry: lists nothing.
-
-- Delete a :Widget: by name.
+# delete-widget
+A :Widget: is deleted by name.

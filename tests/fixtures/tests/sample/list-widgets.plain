@@ -1,0 +1,8 @@
+---
+module: sample
+func_id: list-widgets
+---
+
+***conformance tests***
+> add conformance test scenarios here
+***acceptance tests***

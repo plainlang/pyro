@@ -1,6 +1,2 @@
-- Create a :Widget: from a name.
-- Creating a :Widget: named "a" yields a :Widget: with name "a".
-- An empty name is rejected.
-
-- List all :Widget: in the :Registry:.
-- An empty :Registry: lists nothing.
+# reject-empty-name
+An empty name is rejected and the :Registry: stays unchanged.

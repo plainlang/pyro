@@ -1,0 +1,5 @@
+# create-named-widget
+Creating a :Widget: named "a" yields a :Widget: with name "a".
+
+# create-second-widget
+A second :Widget: named "b" joins "a" in the :Registry:.

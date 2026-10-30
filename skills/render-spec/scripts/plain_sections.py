@@ -8,8 +8,13 @@
 #   implementation-reqs  impl-reqs   impl    :plainImplementationReqs:
 #   test-reqs                                :plainTestReqs:
 #   functional-specs     func-specs  specs   :plainFunctionality:
+#   conformance-tests    conf-tests          :ConformanceTests:
 #   acceptance-tests     acc-tests           :AcceptanceTests:
 #   all                  all-sections everything   - every section, in file order
+#
+# The first four sections live in a spec plain file and the two test sections in a test plain
+# file; `all` prints whichever of them the given file holds. Every section is top level - a
+# marker that is indented is not a section.
 #
 # The ***section*** marker itself is never printed, except for `all`, which keeps every
 # section's own marker so the sections stay distinguishable. `>` comment lines are always
@@ -52,6 +57,7 @@ sections (case-insensitive, - and _ interchangeable):
   implementation-reqs  impl-reqs  impl    :plainImplementationReqs:
   test-reqs                               :plainTestReqs:
   functional-specs     func-specs specs   :plainFunctionality:
+  conformance-tests    conf-tests         :ConformanceTests:
   acceptance-tests     acc-tests          :AcceptanceTests:
   all                  all-sections everything
 """
@@ -71,6 +77,9 @@ SECTIONS = {
     "func specs": "functional specs",
     "specs": "functional specs",
     "plainfunctionality": "functional specs",
+    "conformance tests": "conformance tests",
+    "conf tests": "conformance tests",
+    "conformancetests": "conformance tests",
     "acceptance tests": "acceptance tests",
     "acc tests": "acceptance tests",
     "acceptancetests": "acceptance tests",
@@ -82,8 +91,6 @@ SECTIONS = {
 COMMENT_RE = re.compile(r"^[ \t]*>")
 BLANK_RE = re.compile(r"^[ \t]*$")
 MARKER_RE = re.compile(r"^[ \t]*\*\*\*(.*)\*\*\*[ \t]*$")
-SPEC_ITEM_RE = re.compile(r"^-[ \t]")
-TRAILING_WS_RE = re.compile(r"[ \t]+$")
 
 
 def byte_sink(stream):
@@ -134,17 +141,6 @@ def marker_name(line):
     return name
 
 
-def indent_of(line):
-    width = 0
-    while width < len(line) and line[width] in " \t":
-        width += 1
-    return width
-
-
-def dedent(line, width):
-    return line[min(indent_of(line), width):]
-
-
 def read_lines(path):
     """Records exactly as awk would see them: split on \\n only, one trailing \\r stripped."""
     handle = open(path, "r", encoding="utf-8", errors="surrogateescape", newline="")
@@ -164,12 +160,6 @@ def extract(path, want, show_path):
     buf = []
     pending = 0  # blank lines held back, so a trailing run never reaches the output
     in_section = False
-    in_fs = False
-    in_block = False
-    block_indent = 0
-    block_content = False
-    parent = ""
-    last_parent = ""
 
     def flush_blanks():
         for _ in range(pending):
@@ -179,49 +169,6 @@ def extract(path, want, show_path):
         marker = marker_name(line)
         col0 = line.startswith("***")
 
-        if want == "acceptance tests":
-            if marker is not None and col0:  # a top-level section starts
-                in_fs = marker == "functional specs"
-                in_block = False
-                continue
-            if not in_fs:
-                continue
-
-            if marker == "acceptance tests":  # nested, indented under one spec
-                in_block = True
-                block_indent = indent_of(line)
-                pending = 0
-                block_content = False
-                if parent != "" and parent != last_parent:
-                    if buf:
-                        buf.append("")
-                    buf.append(parent)
-                    last_parent = parent
-                continue
-            if marker is not None:
-                in_block = False
-                continue
-
-            if in_block:
-                if BLANK_RE.match(line):
-                    pending += 1
-                    continue
-                if indent_of(line) >= block_indent:
-                    if COMMENT_RE.match(line):
-                        continue
-                    if block_content:
-                        flush_blanks()
-                    pending = 0  # drop blank lines right after the marker
-                    block_content = True
-                    buf.append(dedent(line, block_indent))
-                    continue
-                in_block = False  # dedented out of the block; reconsider line
-
-            if SPEC_ITEM_RE.match(line):  # the functional spec this block belongs to
-                parent = TRAILING_WS_RE.sub("", line)
-            continue
-
-        # Top-level section mode.
         if marker is not None and col0:
             if want == "all":
                 if buf:
