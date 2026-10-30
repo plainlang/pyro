@@ -1,0 +1,30 @@
+# Test scenarios of sample
+
+> The complete list of tests to implement for this module. The renderer
+> implements these scenarios and no others; it never invents one.
+
+## create-widget
+
+> from tests/sample/create-widget.plain
+
+***conformance tests***
+
+# create-named-widget
+Creating a :Widget: named "a" yields a :Widget: with name "a".
+
+# create-second-widget
+A second :Widget: named "b" joins "a" in the :Registry:.
+
+***acceptance tests***
+
+# reject-empty-name
+An empty name is rejected and the :Registry: stays unchanged.
+
+## list-widgets
+
+> from tests/sample/list-widgets.plain
+> no test scenarios
+
+## delete-widget
+
+> no test plain file
