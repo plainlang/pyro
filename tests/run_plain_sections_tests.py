@@ -29,6 +29,9 @@ SAMPLE = os.path.join(FIXTURES, "sample.plain")
 CRLF = os.path.join(FIXTURES, "sample-crlf.plain")
 SECOND = os.path.join(FIXTURES, "second.plain")
 EMPTY = os.path.join(FIXTURES, "no-sections.plain")
+# The two test sections live in a test plain file, never in a spec plain file.
+TEST_PLAIN = os.path.join(FIXTURES, "tests", "sample", "create-widget.plain")
+OLD_SYNTAX = os.path.join(FIXTURES, "old-syntax.plain")
 
 harness.set_script(SCRIPT)
 
@@ -48,20 +51,23 @@ def main():
 
 def run_suite(tmp):
     # 1. Every section against its hand-authored expectation.
-    for sec in ("defs", "impl-reqs", "test-reqs", "func-specs", "acc-tests", "all"):
+    for sec in ("defs", "impl-reqs", "test-reqs", "func-specs", "all"):
         assert_stdout("section %s" % sec, expect(sec), sec, SAMPLE)
+    for sec in ("conf-tests", "acc-tests"):
+        assert_stdout("section %s" % sec, expect(sec), sec, TEST_PLAIN)
 
     # 2. Section aliases all resolve to the same body.
     for alias in ("definitions", "DEFS", ":plainDefinitions:", "Definitions"):
         assert_stdout("alias %s" % alias, expect("defs"), alias, SAMPLE)
     assert_stdout("alias impl", expect("impl-reqs"), "impl", SAMPLE)
     assert_stdout("alias implementation_reqs", expect("impl-reqs"), "implementation_reqs", SAMPLE)
-    assert_stdout('alias "acceptance tests"', expect("acc-tests"), "acceptance tests", SAMPLE)
+    assert_stdout('alias "acceptance tests"', expect("acc-tests"), "acceptance tests", TEST_PLAIN)
+    assert_stdout("alias :ConformanceTests:", expect("conf-tests"), ":ConformanceTests:", TEST_PLAIN)
     assert_stdout("alias everything", expect("all"), "everything", SAMPLE)
 
     # 3. CRLF input yields byte-identical output to the LF fixture.
     assert_stdout("crlf fixture, all sections", expect("all"), "all", CRLF)
-    assert_stdout("crlf fixture, acc-tests", expect("acc-tests"), "acc-tests", CRLF)
+    assert_stdout("crlf fixture, func-specs", expect("func-specs"), "func-specs", CRLF)
 
     # 4. --include-filename prefixes "## <path>" and a blank line.
     want_filename = ("## %s\n\n" % SAMPLE).encode("utf-8") + expect("defs")
@@ -136,6 +142,15 @@ def run_suite(tmp):
         ok("missing section warns on stderr, stdout empty")
     else:
         bad("missing section warns on stderr, stdout empty")
+
+    # 9b. An indented ***acceptance tests*** block is not a section any more, so a spec in the
+    # old syntax yields no acceptance tests at all - test_scenarios.py is what names the cause.
+    assert_rc("nested acceptance tests are not a section", 0, "acc-tests", OLD_SYNTAX)
+    out, err = run("acc-tests", OLD_SYNTAX)[1:]
+    if out == b"" and err != b"":
+        ok("old-syntax spec warns, no acceptance tests body")
+    else:
+        bad("old-syntax spec warns, no acceptance tests body")
 
     # 10. Flags are accepted after the positional arguments too.
     assert_stdout("flag after positionals", want_filename, "defs", SAMPLE, "--include-filename")

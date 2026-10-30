@@ -1,0 +1,19 @@
+---
+module: sample
+func_id: create-widget
+---
+
+***conformance tests***
+
+> a dropped comment inside the section
+
+# create-named-widget
+Creating a :Widget: named "a" yields a :Widget: with name "a".
+
+# create-second-widget
+A second :Widget: named "b" joins "a" in the :Registry:.
+
+***acceptance tests***
+
+# reject-empty-name
+An empty name is rejected and the :Registry: stays unchanged.
