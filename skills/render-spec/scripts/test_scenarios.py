@@ -14,7 +14,9 @@
 # the renderer implements for the module - it never invents a scenario of its own.
 #
 # A functionality with no test plain file, or one whose file holds no scenario, is a warning:
-# the module still renders, that functionality just gets no conformance tests.
+# the module still renders, that functionality just gets no conformance tests. A test plain file
+# whose `func_id:` names no functionality is an error instead, because its scenarios were written
+# and the render would throw them away - a renamed or deleted functionality, or a typo.
 #
 # --output <path> (or --output=<path>) writes the result to <path> instead of stdout, creating
 # missing parent folders, for the same reason plain_sections.py has it: a Windows PowerShell
@@ -25,8 +27,8 @@
 # endings on every platform.
 #
 # Exit: 0 ok (missing or empty test plain files only warn), 1 a spec in the syntax pyro no
-#       longer renders, a malformed id, an unreadable file or an unwritable --output path,
-#       2 usage error.
+#       longer renders, a malformed func-id, a test plain file bound to no functionality, an
+#       unreadable file or an unwritable --output path, 2 usage error.
 
 import os
 import re
@@ -158,12 +160,13 @@ def test_plain_files(folder):
 
 
 def bind(spec, module, ids):
-    """{func-id: [(path, conformance, acceptance)]} - the test plain files of each functionality."""
+    """{func-id: [(path, conformance, acceptance)]}, or None when a file is bound to nothing."""
     folder = os.path.join(os.path.dirname(os.path.abspath(spec)), TESTS_FOLDER)
     bound = dict((func_id, []) for func_id in ids)
     if not os.path.isdir(folder):
         return bound
 
+    stale = False
     for path in test_plain_files(folder):
         where = show(path, os.path.dirname(os.path.abspath(spec)))
         front = frontmatter(path)
@@ -173,15 +176,19 @@ def bind(spec, module, ids):
         if front["module"] != module:
             continue  # a test plain file of another module
         if front["func_id"] not in bound:
-            warning("%s names `%s`, which is not a functionality of %s; skipped"
-                    % (where, front["func_id"], module))
+            # Its scenarios were written for something: a renamed or deleted functionality, or
+            # a typo. Rendering on would throw them away without anyone noticing.
+            error("%s names `%s`, which is not a functionality of %s. Point `func_id:` at the "
+                  "functionality the scenarios belong to, or delete the file."
+                  % (where, front["func_id"], module))
+            stale = True
             continue
         bound[front["func_id"]].append((
             where,
             scenarios(extract(path, "conformance tests", False), where),
             scenarios(extract(path, "acceptance tests", False), where),
         ))
-    return bound
+    return None if stale else bound
 
 
 def section_lines(marker, merged):
@@ -294,6 +301,8 @@ def main(argv):
         bound = bind(spec, module, ids)
     except (IOError, OSError):
         error("cannot read the test plain files of %s" % module)
+        return 1
+    if bound is None:
         return 1
 
     text = report(module, ids, bound)

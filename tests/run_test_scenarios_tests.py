@@ -251,34 +251,44 @@ It belongs to another module.
 
 ***acceptance tests***
 """)
-    test_file(strays, "strays", "gamma", """---
-module: strays
+    write(os.path.join(os.path.dirname(strays), "tests", "notes.plain"), "no frontmatter here\n")
+    out, err = run(strays)[1:]
+    if b"other-module" not in out:
+        ok("another module's test plain file is left out")
+    else:
+        bad("another module's test plain file is left out")
+    if b"elsewhere" not in err:
+        ok("another module's test plain file is passed over in silence")
+    else:
+        bad("another module's test plain file is passed over in silence")
+    if b"has no `module:` and `func_id:`" in err:
+        ok("a .plain file with no frontmatter warns and is skipped")
+    else:
+        bad("a .plain file with no frontmatter warns and is skipped", err.decode("utf-8", "replace"))
+    assert_rc("a file of another module still exits 0", 0, strays)
+
+    # 5b. A test plain file bound to no functionality stops the run: its scenarios were written
+    # for something - a renamed or deleted functionality, or a typo - and would be thrown away.
+    stale = module(tmp, "stale")
+    test_file(stale, "stale", "gamma", """---
+module: stale
 func_id: gamma
 ---
 
 ***conformance tests***
 
-# stale
+# orphan
 It names a functionality that is gone.
 
 ***acceptance tests***
 """)
-    write(os.path.join(os.path.dirname(strays), "tests", "notes.plain"), "no frontmatter here\n")
-    out, err = run(strays)[1:]
-    if b"other-module" not in out and b"stale" not in out:
-        ok("files of another module and of an unknown func-id are left out")
+    assert_rc("a test plain file bound to no functionality exits 1", 1, stale)
+    err = run(stale)[2]
+    if b"is not a functionality of stale" in err and b"tests/stale/gamma.plain" in err:
+        ok("the stale file and its func-id are named in the error")
     else:
-        bad("files of another module and of an unknown func-id are left out")
-    if b"elsewhere" not in err:
-        ok("another module's test plain file is passed over in silence")
-    else:
-        bad("another module's test plain file is passed over in silence")
-    for want in (b"is not a functionality of strays", b"has no `module:` and `func_id:`"):
-        if want in err:
-            ok("warns: %s" % want.decode("utf-8"))
-        else:
-            bad("warns: %s" % want.decode("utf-8"), err.decode("utf-8", "replace"))
-    assert_rc("a stray test plain file still exits 0", 0, strays)
+        bad("the stale file and its func-id are named in the error",
+            err.decode("utf-8", "replace"))
 
     # 6. The syntax pyro no longer renders: a nested block, or bullets with no func-id.
     assert_rc("a nested acceptance tests block exits 1", 1, OLD_SYNTAX)
