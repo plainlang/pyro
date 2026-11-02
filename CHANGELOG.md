@@ -8,6 +8,25 @@ entries go directly below the marker.
 
 <!-- version list -->
 
+## v0.5.0 (2026-11-02)
+
+### Bug Fixes
+
+- Stop the render when a test plain file is bound to nothing
+  ([`97de281`](https://github.com/plainlang/pyro/commit/97de2815546492a4e5587171556bb1f3e660e6bc))
+
+### Features
+
+- Collect test scenarios from the test plain files of a module
+  ([`8da5c7a`](https://github.com/plainlang/pyro/commit/8da5c7a3d42fcb64ac9a1963814b1d371d7f0ffa))
+
+- Read the test sections from test plain files
+  ([`d4f816f`](https://github.com/plainlang/pyro/commit/d4f816f4c89a0a43b5dbe61a5b93dbbc51e21943))
+
+- Render the scenarios of the test plain files, invent none
+  ([`1c0c62b`](https://github.com/plainlang/pyro/commit/1c0c62b2c0ca0f7d970d2716d3e08d3ae102ba7b))
+
+
 ## v0.4.0 (2026-09-16)
 
 ### Bug Fixes
