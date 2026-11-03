@@ -150,3 +150,7 @@ There are two kinds of release, and they differ in how the PR opens:
 - **Prerelease** (`prerelease-next` → `dev`): the PR never opens on its own —
   run the *Release PR* workflow manually to open it. Merging it releases the
   next prerelease `x.y.z-rc.N` and does not touch `main`.
+
+Merges into `dev` and releases post to the team's Slack channel. A release
+posts a start message and replies with the result in its thread; failures also
+go to the channel, and success adds a ✅ to the start message.
