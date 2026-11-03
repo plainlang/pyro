@@ -1,0 +1,46 @@
+name: Notify Slack on Merge to Dev
+
+# Posts to Slack when a PR lands on dev, where every merge goes (main only
+# fast-forwards to releases). Release PRs are skipped: release.yml posts those.
+#
+# pull_request rather than pull_request_target: the latter runs the workflow
+# from the default branch (main), which lags dev until the next stable release.
+# Fork PRs get no secrets under pull_request, so their merges post nothing.
+# The title only reaches the shell through an env var.
+on:
+  pull_request:
+    types: [closed]
+    branches: [dev]
+
+permissions: {}
+
+jobs:
+  notify:
+    name: Notify Slack
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.pull_request.merged &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !contains(fromJSON('["release-next", "prerelease-next"]'), github.event.pull_request.head.ref) &&
+      vars.SLACK_CHANNEL_ID != ''
+
+    steps:
+      # Slack reads <, > and & as markup: escape them so a PR title cannot
+      # mention @channel or rewrite the link.
+      - name: Escape the PR title for Slack
+        id: pr
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          printf 'title=%s\n' "$(printf '%s' "$TITLE" | tr '\r\n' '  ' | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g')" >> "$GITHUB_OUTPUT"
+
+      - name: Notify Slack (merged to dev)
+        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          errors: true
+          # toJSON quotes the title, so quotes and colons in it keep the payload valid.
+          payload: |
+            channel: ${{ vars.SLACK_CHANNEL_ID }}
+            text: ${{ toJSON(format('*pyro*: <{0}|#{1} {2}> merged to `dev` — by *{3}*.', github.event.pull_request.html_url, github.event.pull_request.number, steps.pr.outputs.title, github.event.pull_request.user.login)) }}
