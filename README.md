@@ -153,4 +153,6 @@ There are two kinds of release, and they differ in how the PR opens:
 
 Merges into `dev` and releases post to the team's Slack channel. A release
 posts a start message and replies with the result in its thread; failures also
-go to the channel, and success adds a ✅ to the start message.
+go to the channel, and success adds a ✅ to the start message. Stable releases
+are also recorded in the team's Linear release tracker, with the PRs merged since
+the previous release and the GitHub release notes.
