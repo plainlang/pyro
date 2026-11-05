@@ -124,12 +124,50 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: echo "Released v${VERSION} at $(git rev-parse --short HEAD)." >> "$GITHUB_STEP_SUMMARY"
 
+  # Stable releases only; pre-releases stay out of the Linear pipeline.
+  linear-release:
+    name: Record release in Linear
+    needs: release
+    if: ${{ needs.release.outputs.prerelease == 'false' }}
+    runs-on: ubuntu-latest
+    # pull-requests lets the step look up each commit's PR.
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      # The notify job links the release, or says recording it failed.
+      release-url: ${{ steps.linear.outputs.release-url }}
+      outcome: ${{ steps.linear.outcome }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The release gets the PRs merged since the previous one, and the GitHub
+      # release text as notes; a re-run updates it. Log-only until
+      # LINEAR_RELEASE_MODE is "live". Non-fatal: the release is already out.
+      - name: Record release in Linear
+        id: linear
+        continue-on-error: true
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          LINEAR_ACCESS_KEY: ${{ secrets.LINEAR_ACCESS_KEY }}
+          LINEAR_RELEASE_MODE: ${{ vars.LINEAR_RELEASE_MODE }}
+          RELEASE_VERSION: v${{ needs.release.outputs.version }}
+          RELEASE_SHA: ${{ github.sha }}
+          RELEASE_BRANCH: dev
+          RELEASE_NOTES: github-release
+        with:
+          script: return require('./.github/scripts/record-linear-release.cjs')({ github, context, core })
+
   # End-of-run notices run in their own job: a failed Slack post fails only this
   # job, not the release, and "Re-run failed jobs" re-posts without releasing
   # again.
   notify:
     name: Notify Slack
-    needs: release
+    # linear-release is skipped for pre-releases and failed releases; this job still runs.
+    needs: [release, linear-release]
     # Pushes to dev that are not release commits skip the release job and post
     # nothing.
     if: ${{ !cancelled() && vars.SLACK_CHANNEL_ID != '' && contains(fromJSON('["success", "failure"]'), needs.release.result) }}
@@ -180,6 +218,9 @@ jobs:
 
       - name: Notify Slack (release published)
         if: ${{ needs.release.result == 'success' && needs.release.outputs.prerelease == 'false' }}
+        env:
+          # Empty while the release step only logs, or when it failed.
+          RELEASE_URL: ${{ needs.linear-release.outputs.release-url }}
         uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
         with:
           method: chat.postMessage
@@ -190,7 +231,7 @@ jobs:
             thread_ts: ${{ env.THREAD_TS }}
             text: >-
               *pyro*: `v${{ env.VERSION }}` released :white_check_mark: and `main` moved to it.
-              Update with `claude plugin marketplace update pyro && claude plugin update pyro`, then restart. <${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ env.VERSION }}|Release notes>.
+              Update with `claude plugin marketplace update pyro && claude plugin update pyro`, then restart. <${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ env.VERSION }}|Release notes>.${{ env.RELEASE_URL != '' && format(' <{0}|View release>.', env.RELEASE_URL) || needs.linear-release.outputs.outcome == 'failure' && ' Recording it in Linear failed :warning:.' || '' }}
 
       # Success also puts a ✅ on the start notice, so the result shows in the
       # channel without another message. Needs the app's reactions:write scope.
