@@ -233,7 +233,7 @@ jobs:
             thread_ts: ${{ env.THREAD_TS }}
             text: >-
               *pyro*: `v${{ env.VERSION }}` released :white_check_mark: and `main` moved to it.
-              Update with `claude plugin marketplace update pyro && claude plugin update pyro`, then restart. <${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ env.VERSION }}|Release notes>.${{ env.RELEASE_URL != '' && format(' <{0}|View release>.', env.RELEASE_URL) || needs.linear-release.outputs.outcome == 'failure' && ' Recording it in Linear failed :warning:.' || '' }}
+              Update with `claude plugin marketplace update pyro && claude plugin update pyro`, then restart. <${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ env.VERSION }}|Release notes>.${{ env.RELEASE_URL != '' && format(' <{0}|View release>.', env.RELEASE_URL) || (needs.linear-release.result == 'failure' || needs.linear-release.outputs.outcome == 'failure') && ' Recording it in Linear failed :warning:.' || '' }}
 
       # Success also puts a ✅ on the start notice, so the result shows in the
       # channel without another message. Needs the app's reactions:write scope.
